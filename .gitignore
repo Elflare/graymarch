@@ -1,0 +1,30 @@
+# Local credentials and process state
+.runtime/
+
+# Python environments, caches and packaging
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Dependencies, build output and tool caches
+node_modules/
+build/
+dist/
+.cache/
+
+# Logs, editor swap files and OS metadata
+*.log
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+saves/

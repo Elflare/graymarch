@@ -1,0 +1,8 @@
+[server]
+host = "127.0.0.1"
+port = 8765
+request_timeout = 10.0
+
+[full_info]
+# Minimum actual gameplay decisions between主动完整信息查询. 0 = unlimited.
+min_turn_interval = 0
