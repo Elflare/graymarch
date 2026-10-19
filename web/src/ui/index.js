@@ -550,14 +550,17 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
     const locked = !canInteract();
     setAvailability($('newRunBtn'), true);
     setAvailability($('trainBtn'), !state.inBattle && !state.pendingDecision);
-    setAvailability($('fleeBtn'), !!state.inBattle);
+    // 主动撤退暂时禁用；此按钮仅供退出训练。
+    $('fleeBtn').style.display = state.training ? '' : 'none';
+    setAvailability($('fleeBtn'), !!state.inBattle && !!state.training);
     document.querySelectorAll('[data-action],[data-eat],#harvestBtn,#campBtn,#trainBtn,#resolvePlanBtn,#clearPlanBtn,#fleeBtn,#newRunBtn,[data-option-id],.event-cancel').forEach(button => {
       button.dataset.controlLocked = String(locked);
       button.disabled = locked || button.dataset.unavailable === 'true';
     });
     $('localSaveBtn').disabled = busy || ownershipBusy || !online;
     $('localLoadBtn').disabled = locked || !online;
-    $('fleeBtn').textContent = state.training ? '退出训练' : '撤退 · 返回地图';
+    // $('fleeBtn').textContent = state.training ? '退出训练' : '撤退 · 返回地图';
+    $('fleeBtn').textContent = '退出训练';
     document.querySelectorAll('[data-class]').forEach(card => card.setAttribute('aria-disabled', String(locked || !classUnlocked(card.dataset.class))));
   }
 
@@ -849,7 +852,8 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
   }
   $('resolvePlanBtn').onclick = () => humanAction('battle.commit', {...actionIds(), plan:[...state.battle.plan]});
   $('clearPlanBtn').onclick = () => setPlan([null,null,null]);
-  $('fleeBtn').onclick = () => humanAction(state.training ? 'training.exit' : 'battle.retreat', actionIds());
+  // 主动撤退暂时禁用：humanAction(state.training ? 'training.exit' : 'battle.retreat', actionIds())。
+  $('fleeBtn').onclick = () => humanAction('training.exit', actionIds());
   $('trainBtn').onclick = () => humanAction('training.start');
   $('harvestBtn').onclick = () => humanAction('world.harvest');
   $('campBtn').onclick = () => humanAction('camp.open');

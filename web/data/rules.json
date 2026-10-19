@@ -176,7 +176,7 @@
     "ruins": "探索遗迹：符能恢复，并获得经验",
     "buff": "{name}：{turns} 回合",
     "trainingEnd": "训练结束：真实状态未改变",
-    "retreat": "战败撤退：恢复了部分生命，未失去经验。",
+    "retreat": "战败恢复：恢复了部分生命，未失去经验。",
     "sigil": "夺得赤塔印记：{sigils}/{required}",
     "victoryTitle": "赤塔陷落",
     "victoryText": "赤塔领主倒下了。最终战评价 {grade}，额外获得 {bonusXp} EXP。新的职业与战术可能已永久解锁。",

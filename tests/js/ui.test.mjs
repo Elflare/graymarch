@@ -25,6 +25,9 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
 
     await $('trainBtn').onclick();
     assert.equal(game.observe().phase, 'battle.planning');
+    assert.equal($('fleeBtn').style.display, '');
+    assert.equal($('fleeBtn').disabled, false);
+    assert.equal($('fleeBtn').textContent, '退出训练');
     assert.equal($('battle').classList.contains('active'), true);
     for (const id of ['basic_attack','basic_guard','basic_attack']) {
       await document.querySelector(`[data-action="${id}"]`).onclick();
@@ -132,6 +135,14 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     assert.deepEqual(calls.map(call=>call[0]), ['/api/v1/saves/manual','/api/v1/saves/manual/load','/api/owner/control','/api/owner/control']);
     assert.deepEqual(calls[2][1], {mode:'agent'});
     assert.deepEqual(calls[3][1], {mode:'human'});
+    await $('fleeBtn').onclick();
+    game.uiRuntime().startBattle('E');
+    ui.render();
+    assert.equal($('fleeBtn').style.display, 'none');
+    assert.equal($('fleeBtn').disabled, true);
+    const realBattle = game.exportSave();
+    await $('fleeBtn').onclick();
+    assert.deepEqual(game.exportSave(), realBattle, 'the old button cannot exit a real battle');
   } finally {
     ui.destroy();
   }

@@ -56,7 +56,6 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 ./gm preview basic_guard basic_attack wait
 ./gm plan basic_guard basic_attack wait
 ./gm fight basic_guard basic_attack wait
-./gm retreat
 ./gm train start
 ./gm train exit
 ./gm command COMMAND_ID
@@ -114,7 +113,7 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 
 - `sessionId`：页面运行身份；`runId`：旅程；`epoch`：读档等受控替换的代次。三者任何一个变化都要重建当前基线。
 - `revision`：成功业务提交版本。查询与预演不推进；计划编辑可推进。
-- `decisionTurn`：真正推进游戏的一次成功决策计 1。三步战斗提交计 1，不是 3；全空计划推进敌人/状态也计 1。进食、有效选择、移动、采集、撤退计 1。
+- `decisionTurn`：真正推进游戏的一次成功决策计 1。三步战斗提交计 1，不是 3；全空计划推进敌人/状态也计 1。进食、有效选择、移动、采集计 1。
 - `worldTurn`：游戏世界时间。一次三步战斗可能推进多次；训练不推进真实世界时间。它不是 API 限频计数。
 - `scene.kind` 为 world/battle；`scene.id` 区分不同战斗。`phase` 才决定当前能做什么，UI 页签不是游戏状态。
 - `choice.pending` 必须使用当前 `decisionId` 与选项的 `optionId`。相同名称的下一轮奖励也有新身份，不复用旧选项。
@@ -136,9 +135,10 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 | choice.cancel | decisionId | 仅显式允许取消的选择 |
 | battle.plan.set | battleId, batchId, plan | 三槽技能 ID 或 null；只编辑，不执行 |
 | battle.commit | battleId, batchId, plan | 三槽原子提交；不依赖先 plan.set |
-| battle.retreat | {} | 真实撤退后果，不是免费返回 |
 | training.start | {} | 世界阶段进入训练 |
 | training.exit | {} | 恢复训练前状态 |
+
+主动撤退暂时禁用：`battle.retreat` 不在合法动作中，提交返回 `INVALID_PHASE`。真实战斗需结算胜败；`training.exit` 仅用于训练。
 
 战斗计划使用 `basic_attack`、`basic_guard` 和已拥有主动技能 ID，不能传中文名、技能等级、伤害或敌人动作。封印槽传 null。技能效果及冷却长度见返回的技能描述；`player.cooldowns` 仅列仍在冷却的技能及剩余步数，跨批次延续。可预演 `POST /api/v1/preview`，请求正文为 `{ "expectedRevision": 当前版本, "battleId": 当前战斗ID, "batchId": 当前批次ID, "plan": ["basic_guard", "basic_attack", null] }`。只读预演不消耗能量、随机流、奖励或时间。实际返回 `partial`、`blockedAt`、`steps`、`outcome` 及公开可推演的结果。`partial=true` 时，只信任已覆盖步骤，不把缺失部分当作安全。当前步骤若能量不足或技能仍在冷却，技能失败但敌人仍行动；先看逐步预演，不能只验证计划结构。
 

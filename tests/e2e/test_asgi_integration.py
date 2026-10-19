@@ -135,6 +135,14 @@ class ASGIIntegration(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual((await get('information?scope=player'))['player']['inventory']['berries'], 2)
 
                     before = await get('observation')
+                    self.assertNotIn('battle.retreat', before['allowed'])
+                    retreat = {k: before[k] for k in ['sessionId', 'runId', 'epoch']}
+                    retreat.update(commandId='disabled-retreat', expectedRevision=before['revision'],
+                                   type='battle.retreat', payload={})
+                    rejected = await client.post('/api/v1/actions', json=retreat, headers=auth)
+                    self.assertEqual(rejected.status_code, 409, rejected.text)
+                    self.assertEqual(rejected.json()['error']['code'], 'INVALID_PHASE')
+                    self.assertEqual(await get('observation'), before)
                     bad_save = json.loads(original)
                     bad_save['state']['inventory'] = {}
                     for content, code in [(b'{broken', 'SAVE_INVALID'), (json.dumps(bad_save).encode(), 'INVALID_SAVE')]:

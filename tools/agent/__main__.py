@@ -39,7 +39,9 @@ def parser():
     for name, help_text in [
         ("status", "连接与控制权"),
         ("catalog", "公开定义"), ("harvest", "采集一次"), ("camp", "打开当前营火"),
-        ("cancel", "取消当前可取消选择"), ("retreat", "撤退，承担实际游戏后果"),
+        ("cancel", "取消当前可取消选择"),
+        # 主动撤退暂时禁用。
+        # ("retreat", "撤退，承担实际游戏后果"),
     ]:
         commands.add_parser(name, help=help_text, parents=[common])
     observe = commands.add_parser("observe", help="当前决策（默认命令），可指定查询范围", parents=[common])
