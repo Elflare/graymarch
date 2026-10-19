@@ -1,0 +1,110 @@
+{
+  "berry_focus": {
+    "name": "清醒",
+    "turns": 8,
+    "guard": 1,
+    "desc": "格挡动作 +{guard}。"
+  },
+  "stomach_cold": {
+    "name": "胃寒",
+    "turns": 10,
+    "hungerCost": 1,
+    "desc": "移动与采集的饥饿消耗 +{hungerCost}。"
+  },
+  "thirsty": {
+    "name": "口渴",
+    "turns": 8,
+    "hungerCost": 1,
+    "desc": "移动与采集的饥饿消耗 +{hungerCost}。"
+  },
+  "trail_food": {
+    "name": "耐行",
+    "turns": 10,
+    "hungerCost": -1,
+    "desc": "移动与采集的饥饿消耗 {hungerCost}（最低仍为{minMoveCost}）。"
+  },
+  "ember_spice": {
+    "name": "辛烈",
+    "turns": 10,
+    "attack": 1,
+    "desc": "攻击 +{attack}。"
+  },
+  "marsh_miasma": {
+    "name": "沼瘴",
+    "turns": 12,
+    "attack": -1,
+    "desc": "攻击 {attack}。"
+  },
+  "wet_chill": {
+    "name": "湿冷",
+    "turns": 10,
+    "hungerCost": 1,
+    "desc": "移动与采集的饥饿消耗 +{hungerCost}。"
+  },
+  "thorn_scratch": {
+    "name": "荆棘划伤",
+    "turns": 9,
+    "guard": -1,
+    "desc": "格挡动作 {guard}。"
+  },
+  "forage_fatigue": {
+    "name": "采集疲劳",
+    "turns": 8,
+    "hungerCost": 1,
+    "desc": "移动与采集的饥饿消耗 +{hungerCost}。"
+  },
+  "hunter_path": {
+    "name": "猎径记忆",
+    "turns": 20,
+    "hungerCost": -1,
+    "desc": "移动与采集饥饿消耗 {hungerCost}。"
+  },
+  "mire_whisper": {
+    "name": "沼语",
+    "turns": 10,
+    "attack": -1,
+    "desc": "攻击 {attack}。"
+  },
+  "forge_edge": {
+    "name": "符铁锋刃",
+    "turns": 24,
+    "attack": 1,
+    "desc": "攻击 +{attack}。"
+  },
+  "forge_guard": {
+    "name": "加固护具",
+    "turns": 24,
+    "guard": 1,
+    "desc": "格挡动作 +{guard}。"
+  },
+  "rune_edge": {
+    "name": "符刃祝福",
+    "turns": 30,
+    "attack": 1,
+    "desc": "攻击 +{attack}"
+  },
+  "watch_guard": {
+    "name": "守望架势",
+    "turns": 28,
+    "guard": 2,
+    "desc": "格挡动作 +{guard}"
+  },
+  "camp_sated": {
+    "name": "饱足",
+    "turns": 14,
+    "hungerCost": -1,
+    "desc": "移动与采集饥饿消耗 {hungerCost}。"
+  },
+  "camp_warm": {
+    "name": "暖胃",
+    "turns": 12,
+    "guard": 1,
+    "desc": "格挡动作 +{guard}。"
+  },
+  "camp_focus": {
+    "name": "热饮振奋",
+    "turns": 10,
+    "attack": 1,
+    "desc": "攻击 +{attack}。"
+  }
+}

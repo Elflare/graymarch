@@ -1,0 +1,438 @@
+{
+  "wolf": {
+    "cn": "荒原狼",
+    "en": "Wasteland Wolf",
+    "art": "wolf",
+    "tags": [
+      "野兽",
+      "迅捷",
+      "无甲"
+    ],
+    "summary": "每 {period} 回合发动扑击，其余时间持续撕咬。",
+    "hp": 7,
+    "atk": 2,
+    "armor": 0,
+    "scene": "BLACKWOOD EDGE",
+    "pattern": [
+      "1–{beforePeriod}：撕咬 {atk}",
+      "{period}：扑击 {heavyDamage}",
+      "循环重复"
+    ],
+    "behavior": "wolf",
+    "params": {
+      "period": 3,
+      "heavyBonus": 2
+    },
+    "actionNames": {
+      "attack": "撕咬",
+      "heavy": "扑击"
+    },
+    "tier": 1
+  },
+  "boar": {
+    "cn": "黑鬃野猪",
+    "en": "Blackmane Boar",
+    "art": "boar",
+    "tags": [
+      "野兽",
+      "冲锋",
+      "厚皮"
+    ],
+    "summary": "平时顶撞，第 {period} 回合蓄力冲锋，伤害明显提高。",
+    "hp": 10,
+    "atk": 2,
+    "armor": 1,
+    "scene": "WINDGRASS",
+    "pattern": [
+      "1–{beforePeriod}：顶撞 {atk}",
+      "{period}：冲锋 {heavyDamage}",
+      "循环重复"
+    ],
+    "behavior": "boar",
+    "params": {
+      "period": 4,
+      "heavyBonus": 3
+    },
+    "actionNames": {
+      "attack": "顶撞",
+      "heavy": "獠牙冲锋"
+    },
+    "tier": 1
+  },
+  "skeleton": {
+    "cn": "墓园剑骨",
+    "en": "Grave Skeleton",
+    "art": "skeleton",
+    "tags": [
+      "亡灵",
+      "轻甲",
+      "防御型"
+    ],
+    "summary": "生命低于 {guardPercent}% 后频繁格挡，每第 {period} 回合使用重劈。",
+    "hp": 9,
+    "atk": 2,
+    "armor": 1,
+    "scene": "FALLEN CHAPEL",
+    "pattern": [
+      "每 {period} 回合：重击 {heavyDamage}",
+      "HP ≤ {guardPercent}% 且每 {guardPeriod} 回合：格挡 {block}",
+      "其余：劈砍 {atk}"
+    ],
+    "behavior": "skeleton",
+    "params": {
+      "period": 4,
+      "heavyBonus": 2,
+      "guardPeriod": 3,
+      "guardRatio": 0.5,
+      "block": 3
+    },
+    "actionNames": {
+      "attack": "劈砍",
+      "heavy": "骸骨重劈",
+      "guard": "举盾"
+    },
+    "tier": 1
+  },
+  "spider": {
+    "cn": "沼纹毒蛛",
+    "en": "Fenstripe Spider",
+    "art": "spider",
+    "tags": [
+      "野兽",
+      "毒素",
+      "爆发"
+    ],
+    "summary": "第 {period} 回合喷吐毒液；毒液会在随后 {poisonTurns} 回合继续损伤生命。",
+    "hp": 8,
+    "atk": 2,
+    "armor": 0,
+    "scene": "GREY MIRE",
+    "pattern": [
+      "1–{beforePeriod}：撕咬 {atk}",
+      "{period}：毒液 {atk} + 中毒",
+      "循环重复"
+    ],
+    "behavior": "spider",
+    "params": {
+      "period": 3,
+      "poison": 1
+    },
+    "actionNames": {
+      "attack": "撕咬",
+      "venom": "毒液喷吐"
+    },
+    "tier": 2
+  },
+  "bandit": {
+    "cn": "灰斗佣兵",
+    "en": "Graycloak Mercenary",
+    "art": "bandit",
+    "tags": [
+      "人类",
+      "节奏型"
+    ],
+    "summary": "严格按刺击、招架、重击三拍循环。",
+    "hp": 10,
+    "atk": 3,
+    "armor": 0,
+    "scene": "OLD KING'S ROAD",
+    "pattern": [
+      "1：刺击 {atk}",
+      "2：格挡 {block}",
+      "3：重击 {heavyDamage}",
+      "循环重复"
+    ],
+    "behavior": "bandit",
+    "params": {
+      "period": 3,
+      "block": 2,
+      "heavyBonus": 2
+    },
+    "actionNames": {
+      "attack": "刺击",
+      "guard": "招架",
+      "heavy": "重击"
+    },
+    "tier": 2
+  },
+  "knight": {
+    "cn": "失誓骑士",
+    "en": "Oathless Knight",
+    "art": "knight",
+    "tags": [
+      "人类",
+      "重甲",
+      "稳健"
+    ],
+    "summary": "格挡与攻击交替，第 {period} 回合会用穿甲重斩。",
+    "hp": 14,
+    "atk": 3,
+    "armor": 2,
+    "scene": "BROKEN CAUSEWAY",
+    "pattern": [
+      "每 {guardPeriod} 回合：格挡 {block}",
+      "每 {period} 回合：穿甲重斩 {heavyDamage}",
+      "其余：剑击 {atk}"
+    ],
+    "behavior": "knight",
+    "params": {
+      "period": 5,
+      "guardPeriod": 2,
+      "block": 3,
+      "heavyBonus": 3
+    },
+    "actionNames": {
+      "attack": "剑击",
+      "guard": "塔盾架势",
+      "heavy": "穿甲重斩"
+    },
+    "tier": 3
+  },
+  "golem": {
+    "cn": "符文石像",
+    "en": "Rune Golem",
+    "art": "golem",
+    "tags": [
+      "构装",
+      "重甲",
+      "慢速"
+    ],
+    "summary": "护甲很高；每次攻击后短暂露出破绽。",
+    "hp": 13,
+    "atk": 3,
+    "armor": 2,
+    "scene": "BROKEN SHRINE",
+    "pattern": [
+      "奇数：石拳 {atk}",
+      "偶数：震地 {heavyDamage}",
+      "行动后短暂破绽"
+    ],
+    "behavior": "golem",
+    "params": {
+      "period": 2,
+      "heavyBonus": 2
+    },
+    "actionNames": {
+      "attack": "石拳",
+      "heavy": "震地"
+    },
+    "tier": 3
+  },
+  "wraith": {
+    "cn": "暮影巫徒",
+    "en": "Dusk Cultist",
+    "art": "wraith",
+    "tags": [
+      "秘法",
+      "爆发",
+      "吸能"
+    ],
+    "summary": "暗焰爆发高，并会周期性削减你的能量。",
+    "hp": 11,
+    "atk": 3,
+    "armor": 0,
+    "scene": "ASHEN MARSH",
+    "pattern": [
+      "奇数：暗焰 {heavyDamage}",
+      "每 {guardPeriod} 回合：暮影屏障 {block}",
+      "每 {drainPeriod} 回合额外吸取 {drain} 能量"
+    ],
+    "behavior": "wraith",
+    "params": {
+      "guardPeriod": 4,
+      "heavyPeriod": 2,
+      "drainPeriod": 6,
+      "block": 3,
+      "heavyBonus": 2,
+      "drain": 1
+    },
+    "actionNames": {
+      "attack": "法术",
+      "guard": "暮影屏障",
+      "heavy": "暗焰"
+    },
+    "tier": 3
+  },
+  "ogre": {
+    "cn": "裂石食人魔",
+    "en": "Stonecleaver Ogre",
+    "art": "ogre",
+    "tags": [
+      "巨人",
+      "高血量",
+      "重击"
+    ],
+    "summary": "几乎不防御，每两回合一次大力挥砸，适合抢攻或提前架盾。",
+    "hp": 17,
+    "atk": 4,
+    "armor": 0,
+    "scene": "SHATTERED HILLS",
+    "pattern": [
+      "奇数：横扫 {atk}",
+      "偶数：巨槌 {heavyDamage}"
+    ],
+    "behavior": "ogre",
+    "params": {
+      "period": 2,
+      "heavyBonus": 3
+    },
+    "actionNames": {
+      "attack": "横扫",
+      "heavy": "巨槌"
+    },
+    "tier": 4
+  },
+  "iron_warden": {
+    "cn": "铁誓卫长",
+    "en": "Iron Oath Warden",
+    "art": "knight",
+    "tags": [
+      "塔印守卫",
+      "重甲",
+      "破绽"
+    ],
+    "summary": "第一枚塔印守卫。架盾、剑击、重锤三拍循环；重锤后短暂露出破绽。第 {enrageStart} 步起，每 {enrageInterval} 步攻击伤害 +1。",
+    "hp": 24,
+    "atk": 3,
+    "armor": 2,
+    "enrageAfter": 12,
+    "scene": "THE IRON VIGIL",
+    "pattern": [
+      "1：铁誓壁垒 +{block} 格挡",
+      "2：誓刃 {atk} 伤害",
+      "3：破城重锤 {heavyDamage} 伤害，随后露出破绽",
+      "第 {enrageStart} 步起，每 {enrageInterval} 步伤害 +1"
+    ],
+    "behavior": "iron_warden",
+    "params": {
+      "period": 3,
+      "block": 6,
+      "heavyBonus": 3
+    },
+    "actionNames": {
+      "attack": "誓刃",
+      "guard": "铁誓壁垒",
+      "heavy": "破城重锤"
+    },
+    "tier": 0
+  },
+  "rot_priest": {
+    "cn": "蚀符祭司",
+    "en": "Blight Rune Priest",
+    "art": "wraith",
+    "tags": [
+      "塔印守卫",
+      "吸能",
+      "毒咒"
+    ],
+    "summary": "第二枚塔印守卫。汲能、符盾、毒咒三拍循环；格挡也无法阻止汲能与施毒。第 {enrageStart} 步起，每 {enrageInterval} 步攻击伤害 +1。",
+    "hp": 36,
+    "atk": 4,
+    "armor": 1,
+    "enrageAfter": 12,
+    "scene": "THE BLIGHT SANCTUM",
+    "pattern": [
+      "1：蚀符汲能 {drainDamage} 伤害，吸取 {drain} 能量",
+      "2：腐印屏障 +{block} 格挡",
+      "3：瘴毒咒 {atk} 伤害，中毒 {poisonTurns} 步，每步 {poison} 伤害",
+      "第 {enrageStart} 步起，每 {enrageInterval} 步伤害 +1"
+    ],
+    "behavior": "rot_priest",
+    "params": {
+      "period": 3,
+      "drainBonus": -1,
+      "drain": 1,
+      "block": 5,
+      "poison": 1
+    },
+    "actionNames": {
+      "drain": "蚀符汲能",
+      "guard": "腐印屏障",
+      "venom": "瘴毒咒"
+    },
+    "tier": 0
+  },
+  "rift_reaver": {
+    "cn": "裂冠猎手",
+    "en": "Crown Rift Reaver",
+    "art": "ogre",
+    "tags": [
+      "塔印守卫",
+      "蓄势爆发",
+      "错拍"
+    ],
+    "summary": "第三枚塔印守卫。蓄势后连续三次攻击，四拍循环会与三步计划错开；裂冠斩后露出破绽。第 {enrageStart} 步起，每 {enrageInterval} 步攻击伤害 +1。",
+    "hp": 48,
+    "atk": 5,
+    "armor": 1,
+    "enrageAfter": 12,
+    "scene": "THE SHATTERED CROWN",
+    "pattern": [
+      "1：锁定猎物，不造成伤害",
+      "2：断崖猛袭 {burstDamage} 伤害",
+      "3：追猎 {atk} 伤害",
+      "4：裂冠斩 {heavyDamage} 伤害，随后露出破绽",
+      "第 {enrageStart} 步起，每 {enrageInterval} 步伤害 +1"
+    ],
+    "behavior": "rift_reaver",
+    "params": {
+      "period": 4,
+      "burstBonus": 4,
+      "heavyBonus": 2
+    },
+    "actionNames": {
+      "wait": "锁定猎物",
+      "burst": "断崖猛袭",
+      "attack": "追猎",
+      "heavy": "裂冠斩"
+    },
+    "tier": 0
+  },
+  "lord": {
+    "cn": "赤塔领主",
+    "en": "Lord of the Red Tower",
+    "art": "lord",
+    "tags": [
+      "最终 Boss",
+      "重甲",
+      "三阶段"
+    ],
+    "summary": "会随生命进入三种阶段：守势试探、猩红压制、濒死狂攻。第 {enrageStart} 步起，每 {enrageInterval} 步攻击伤害 +1。",
+    "hp": 72,
+    "atk": 5,
+    "armor": 2,
+    "enrageAfter": 18,
+    "scene": "THE RED TOWER",
+    "pattern": [
+      "HP > {phaseHighPercent}%：王剑 {atk} / 架势 +{block} 格挡 / 重斩 {heavyDamage}",
+      "HP {phaseLowPercent}–{phaseHighPercent}%：猩红斩 {heavyDamage} 与吸能术 {drainDamage} 交替",
+      "HP ≤ {phaseLowPercent}%：狂王连斩 {finalDamage} / 赤塔崩落 {finalHeavyDamage}，不再防御",
+      "第 {enrageStart} 步起，每 {enrageInterval} 步伤害 +1"
+    ],
+    "behavior": "lord",
+    "params": {
+      "period": 3,
+      "guardPeriod": 2,
+      "block": 4,
+      "heavyBonus": 3,
+      "drainBonus": 1,
+      "drain": 1,
+      "finalBonus": 4,
+      "finalHeavyBonus": 6,
+      "phaseRatios": [
+        0.6666666666666666,
+        0.3333333333333333
+      ]
+    },
+    "actionNames": {
+      "attack": "王剑",
+      "guard": "赤塔架势",
+      "heavy": "王权重斩",
+      "drain": "血印汲取",
+      "pressure": "猩红斩",
+      "final": "狂王连斩",
+      "collapse": "赤塔崩落"
+    },
+    "tier": 5
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "wanderer": {
+    "cn": "灰境行者",
+    "desc": "均衡、稳定，适合任何构筑。",
+    "base": {
+      "hp": 18,
+      "attack": 4,
+      "energy": 3,
+      "hunger": 100
+    },
+    "skills": {},
+    "passives": {},
+    "equipment": {},
+    "inventory": {
+      "berries": 1,
+      "roots": 1
+    },
+    "unlock": "默认解锁"
+  },
+  "sentinel": {
+    "cn": "盾誓守卫",
+    "desc": "生命与防御更高，擅长精准格挡与反击。",
+    "base": {
+      "hp": 22,
+      "attack": 4,
+      "energy": 3,
+      "hunger": 100
+    },
+    "skills": {
+      "guard_stance": 1
+    },
+    "passives": {
+      "precise_guard": 1
+    },
+    "equipment": {
+      "tower_shield": 1
+    },
+    "inventory": {
+      "roots": 2
+    },
+    "unlock": "获得一次 {required} 级战术评价"
+  },
+  "arcanist": {
+    "cn": "符文术士",
+    "desc": "生命较低但符能充足，从火球术起步。",
+    "base": {
+      "hp": 15,
+      "attack": 3,
+      "energy": 4,
+      "hunger": 90
+    },
+    "skills": {
+      "fireball": 1
+    },
+    "passives": {
+      "reserve": 1
+    },
+    "equipment": {
+      "rune_ring": 1
+    },
+    "inventory": {
+      "emberberry": 1,
+      "herb": 1
+    },
+    "unlock": "击败 {required} 次赤塔领主"
+  },
+  "hunter": {
+    "cn": "黑木猎手",
+    "desc": "探索与持续伤害能力强，适合资源路线与流血构筑。",
+    "base": {
+      "hp": 17,
+      "attack": 4,
+      "energy": 3,
+      "hunger": 110
+    },
+    "skills": {
+      "bleed_strike": 1
+    },
+    "passives": {
+      "forager": 1,
+      "pathfinder": 1
+    },
+    "equipment": {},
+    "inventory": {
+      "berries": 2,
+      "nuts": 1
+    },
+    "unlock": "累计采集 {required} 次"
+  }
+}

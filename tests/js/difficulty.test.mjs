@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createGame} from '../../web/src/core/engine.js';
+import {resources,createHumanGame as createGame,loadHuman} from './helpers/resources.mjs';
 import {initialState} from '../../web/src/core/state.js';
 import {installContent} from '../../web/src/content/definitions.js';
 import {installCombat} from '../../web/src/core/combat.js';
 
 function battle(id='skeleton') {
-  const R={state:initialState(),toast(){}};
+  const R={resources,state:initialState(resources),toast(){}};
   installContent(R);
   R.state.player.hp=100;
   R.enemyFor=()=>({...R.enemyDefs[id],id,hp:1000,maxHp:1000,baseArmor:0,block:0});
@@ -30,13 +30,13 @@ test('control cooldowns use steps, cross batches, and preview matches execution'
 
 test('cooldown saves restore and training restores the original player',()=>{
   const game=createGame(),save=game.exportSave();save.state.player.skills.stagger=3;
-  game.importSave(save);
+  loadHuman(game,save);
   const original=game.exportSave().state.player;
   game.humanAct('training.start');
   const b=game.observe().battle;
   game.humanAct('battle.commit',{battleId:b.battleId,batchId:b.batchId,plan:[null,null,'stagger']});
   assert.equal(game.observe().player.cooldowns.stagger,2);
-  game.importSave(game.exportSave());
+  loadHuman(game,game.exportSave());
   assert.equal(game.observe().player.cooldowns.stagger,2);
   game.humanAct('training.exit');
   assert.deepEqual(game.exportSave().state.player,original);
@@ -45,7 +45,7 @@ test('cooldown saves restore and training restores the original player',()=>{
 test('three distinct guardians scale by sigils; enrage strengthens only new attacks',()=>{
   const game=createGame(),ids=[];
   for(let rank=0;rank<3;rank++) {
-    const save=game.exportSave();save.state.sigils=rank;game.importSave(save);
+    const save=game.exportSave();save.state.sigils=rank;loadHuman(game,save);
     const R=game.uiRuntime(),near=R.enemyFor(10,1,'X'),far=R.enemyFor(300,200,'X');
     ids.push(near.id);
     assert.equal(near.hp,[24,36,48][rank]);

@@ -8,6 +8,7 @@ export function mountUI(game) {
   let R = game.uiRuntime();
   const $ = id => document.getElementById(id);
   const VIEW_W = 19, VIEW_H = 11;
+  const requiredSigils=R.resources.data.world.guardians.length,worldConfig=R.resources.data.world,combatConfig=R.resources.data.rules.combat;
   const {classDefs, tileInfo, foodDefs, activeSkills, passiveDefs, equipDefs, rewardPool, enemyDefs, FINAL_TOWER} = R;
   let state = R.state;
   let audioEnabled = state.sound !== false;
@@ -46,8 +47,8 @@ export function mountUI(game) {
   const simulatePlan = (...args) => playback ? null : R.simulatePlan(...args);
   const levelOf = (...args) => R.levelOf(...args);
   const offerTargetLevel = (...args) => R.offerTargetLevel(...args);
-  const classBase = () => classDefs[state.classId] || classDefs.wanderer;
-  const classUnlocked = id => id === 'wanderer' || (state.meta?.unlocks || []).includes('class_' + id);
+  const classBase = () => classDefs[state.classId] || classDefs[R.resources.data.rules.initial.classId];
+  const classUnlocked = id => id === R.resources.data.rules.initial.classId || (state.meta?.unlocks || []).includes('class_' + id);
   const pct = v => `${Math.round(v * 100)}%`;
   const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const MOVE_MS=150;
@@ -124,42 +125,18 @@ function key(x,y){return `${x},${y}`} function clamp(v,a,b){return Math.max(a,Ma
 
 function enemyArt(id){return enemyDefs[id]?.art||id}
 function renderSigils(){
-  let n=Math.max(0,Math.min(3,state.sigils||0));
-  let text=$('worldSigilText'); if(text)text.textContent=`${n}/3`;
+  let n=Math.max(0,Math.min(requiredSigils,state.sigils||0));
+  let text=$('worldSigilText'); if(text)text.textContent=`${n}/${requiredSigils}`;
   let host=$('worldSigils');
   if(host){
-    host.innerHTML=[0,1,2].map(i=>`<span class="sigil-mark ${i<n?'filled':''}">${i<n?'◆':'◇'}</span>`).join('')+`<span class="sigil-label">${n<3?'击败精英获得':'<b>赤塔封印已解除</b>'}</span>`;
+    host.innerHTML=Array.from({length:requiredSigils},(_,i)=>i).map(i=>`<span class="sigil-mark ${i<n?'filled':''}">${i<n?'◆':'◇'}</span>`).join('')+`<span class="sigil-label">${n<requiredSigils?'击败精英获得':'<b>赤塔封印已解除</b>'}</span>`;
   }
 }
-function renderMeta(){$('metaSigils').textContent=`${state.sigils}/3`;$('soundBtn').textContent=audioEnabled?'🔊 音效':'🔇 静音';renderSigils()}
+function renderMeta(){$('metaSigils').textContent=`${state.sigils}/${requiredSigils}`;$('soundBtn').textContent=audioEnabled?'🔊 音效':'🔇 静音';renderSigils()}
 
-function compassDir(dx,dy){
-  let ax=Math.abs(dx),ay=Math.abs(dy);
-  if(ax<2&&ay<2)return '附近';
-  if(ax>ay*1.8)return dx>0?'东':'西';
-  if(ay>ax*1.8)return dy>0?'南':'北';
-  return `${dy>0?'南':'北'}${dx>0?'东':'西'}`;
-}
-function approxDist(n){
-  if(n<=5)return '5格内';
-  let lo=Math.max(5,Math.floor(n/5)*5),hi=lo+5;
-  return `约${lo}–${hi}格`;
-}
-function findSigilLeads(count=Math.max(0,3-state.sigils),maxR=44){
-  if(count<=0)return [];
-  let out=[];
-  for(let y=state.y-maxR;y<=state.y+maxR;y++){
-    for(let x=state.x-maxR;x<=state.x+maxR;x++){
-      let d=Math.abs(x-state.x)+Math.abs(y-state.y);
-      if(!d||d>maxR)continue;
-      let k=key(x,y);
-      if(!state.cleared.has(k)&&tileAt(x,y)==='X') out.push({x,y,d});
-    }
-  }
-  out.sort((a,b)=>a.d-b.d||a.y-b.y||a.x-b.x);
-  // 只显示尚需塔印数量的最近线索；它们只是导航，不会揭露精确坐标。
-  return out.slice(0,count);
-}
+const compassDir=(...args)=>R.compassDir(...args);
+const approxDist=(...args)=>R.approxDist(...args);
+const findSigilLeads=(...args)=>R.findSigilLeads(...args);
 function navPoint(dx,dy,index=0){
   let ax=Math.abs(dx)||.001,ay=Math.abs(dy)||.001;
   let sx=44/ax,sy=41/ay,scale=Math.min(sx,sy);
@@ -176,7 +153,7 @@ function arrowFor(dx,dy){
 function renderNavMarkers(){
   let host=$('navMarkers'); if(!host)return;
   let items=[];
-  if(state.sigils<3){
+  if(state.sigils<requiredSigils){
     let leads=findSigilLeads();
     leads.forEach((p,i)=>{
       let dx=p.x-state.x,dy=p.y-state.y,pos=navPoint(dx,dy,i);
@@ -190,13 +167,13 @@ function renderNavMarkers(){
 }
 function objectiveText(){
   if(state.victory)return `<div class="goal-line goal-done"><b>✓ 赤塔领主已被击败</b><br>灰境主线完成，你仍可继续无尽探索。</div>`;
-  if(state.sigils<3){
-    let remain=3-state.sigils,leads=findSigilLeads(remain);
+  if(state.sigils<requiredSigils){
+    let remain=requiredSigils-state.sigils,leads=findSigilLeads(remain);
     let hint=leads.length?`地图边缘已标出 ${leads.length} 条最近的塔印线索。`:`继续向外探索，寻找精英留下的塔印线索。`;
-    return `<div class="goal-line"><b>主线：收集赤塔印记</b><br>已获得 <b>${state.sigils}/3</b>，还需要 <b>${remain}</b> 枚。<br>${hint}<br><span class="muted">赤塔位置会在三枚塔印集齐后显现。</span></div>`;
+    return `<div class="goal-line"><b>主线：收集赤塔印记</b><br>已获得 <b>${state.sigils}/${requiredSigils}</b>，还需要 <b>${remain}</b> 枚。<br>${hint}<br><span class="muted">赤塔位置会在 ${requiredSigils} 枚塔印集齐后显现。</span></div>`;
   }
   let dx=FINAL_TOWER.x-state.x,dy=FINAL_TOWER.y-state.y,d=Math.abs(dx)+Math.abs(dy);
-  return `<div class="goal-line"><b>主线：前往赤塔</b><br>三枚塔印已经共鸣，赤塔方位已显现。<br>位于 <b>${compassDir(dx,dy)}</b> 方，${approxDist(d)}。</div>`;
+  return `<div class="goal-line"><b>主线：前往赤塔</b><br>${requiredSigils} 枚塔印已经共鸣，赤塔方位已显现。<br>位于 <b>${compassDir(dx,dy)}</b> 方，${approxDist(d)}。</div>`;
 }
 function terrainTooltip(x,y,t){
   let inf=tileInfo[t],bio=biomeAt(x,y),cost=moveCostFor(t),html=`<b>${inf.name}</b><br><span class="muted">区域：</span>${bio.name}<br>${inf.desc}<br><span class="muted">移动饥饿：</span><span class="tip-move">${cost==null?'不可通行':cost}</span>`;
@@ -216,7 +193,7 @@ function terrainTooltip(x,y,t){
   if((t==='E'||t==='X'||t==='B')&&!state.cleared.has(k)){
     let e=enemyFor(x,y,t);
     html+=`<hr style="border:0;border-top:1px solid #3b382f"><b>${e.cn} / ${e.en}</b><br><span class="tip-hp">HP ${e.maxHp}</span> · <span class="tip-atk">ATK ${e.atk}</span> · <span class="tip-armor">ARMOR ${e.baseArmor}</span> · <span class="tip-exp">EXP ${e.xp}</span><br><span class="tip-id">${e.id||''}</span>${e.id?'<br>':''}${e.summary}`;
-    if(t==='B'&&state.sigils<3)html+=`<br><b>赤塔仍被迷雾与封印遮蔽。</b>`;
+    if(t==='B'&&state.sigils<requiredSigils)html+=`<br><b>赤塔仍被迷雾与封印遮蔽。</b>`;
   }
   return html
 }
@@ -243,7 +220,7 @@ function renderMap(){
     let el=cells[i],vx=i%VIEW_W,vy=Math.floor(i/VIEW_W);
     let x=x0+vx,y=y0+vy,k=key(x,y),t=tileAt(x,y),info=tileInfo[t];
     let md=Math.abs(x-state.x)+Math.abs(y-state.y),visible=md<=2,known=visible||state.discovered.has(k);
-    let bossHidden=(t==='B'&&state.sigils<3&&!(x===state.x&&y===state.y));
+    let bossHidden=(t==='B'&&state.sigils<requiredSigils&&!(x===state.x&&y===state.y));
     if(bossHidden){info=tileInfo['.'];known=visible||state.discovered.has(k)}
 
     el.dataset.x=x;el.dataset.y=y;
@@ -376,10 +353,10 @@ function renderCombatStatuses(){
   if(e.enrage)statusChip(eh,'✦',`狂暴 +${e.enrage}`,'攻击伤害已提高；每经过 3 步再 +1。','bad');
 }
 function renderBattle(){if(!state.battle)return;let p=state.player,e=state.battle.enemy,b=state.battle;$('battle').classList.toggle('resolving',!!b.resolving);
-let bio=e.biome||biomeAt(state.x,state.y).id;$('battlefield').className=`battlefield biome-${e.id==='lord'?'red':bio}`;$('sceneTitle').textContent=e.scene;$('enemyName').textContent=e.cn;$('enemyTrait').textContent=e.tags.join(' / ');$('php').textContent=p.hp;$('pmax').textContent=p.maxHp;$('patk').textContent=p.attack;$('energy').textContent=p.energy;$('emax').textContent=p.maxEnergy;$('pblock').textContent=p.block;$('battleHunger').textContent=state.hunger;$('battleHungerMax').textContent=state.maxHunger;$('ehp').textContent=e.hp;$('ehpMax').textContent=e.maxHp;$('earmor').textContent=armorOf(e);$('eblock').textContent=e.block;$('turn').textContent=b.turn;$('phpBar').style.width=`${100*p.hp/p.maxHp}%`;$('ehpBar').style.width=`${100*e.hp/e.maxHp}%`;$('energyBar').style.width=`${100*p.energy/p.maxEnergy}%`;$('pblockBar').style.width=`${Math.min(100,100*p.block/p.maxHp)}%`;$('battleHungerBar').style.width=`${100*state.hunger/state.maxHunger}%`;$('eblockBar').style.width=`${Math.min(100,100*e.block/e.maxHp)}%`;$('energyHint').textContent=`Energy ${p.energy}/${p.maxEnergy} · Hunger ${state.hunger}/${state.maxHunger}`;$('dossierCn').textContent=e.cn;$('dossierEn').textContent=e.en.toUpperCase();$('enemySummary').textContent=e.summary;let phaseTag=e.id==='lord'?`<span class="tag">${e.hp/e.maxHp>2/3?'阶段 I · 守势试探':e.hp/e.maxHp>1/3?'阶段 II · 猩红压制':'阶段 III · 濒死狂攻'}</span>`:'';
+let bio=e.biome||biomeAt(state.x,state.y).id;$('battlefield').className=`battlefield biome-${e.id==='lord'?'red':bio}`;$('sceneTitle').textContent=e.scene;$('enemyName').textContent=e.cn;$('enemyTrait').textContent=e.tags.join(' / ');$('php').textContent=p.hp;$('pmax').textContent=p.maxHp;$('patk').textContent=p.attack;$('energy').textContent=p.energy;$('emax').textContent=p.maxEnergy;$('pblock').textContent=p.block;$('battleHunger').textContent=state.hunger;$('battleHungerMax').textContent=state.maxHunger;$('ehp').textContent=e.hp;$('ehpMax').textContent=e.maxHp;$('earmor').textContent=armorOf(e);$('eblock').textContent=e.block;$('turn').textContent=b.turn;$('phpBar').style.width=`${100*p.hp/p.maxHp}%`;$('ehpBar').style.width=`${100*e.hp/e.maxHp}%`;$('energyBar').style.width=`${100*p.energy/p.maxEnergy}%`;$('pblockBar').style.width=`${Math.min(100,100*p.block/p.maxHp)}%`;$('battleHungerBar').style.width=`${100*state.hunger/state.maxHunger}%`;$('eblockBar').style.width=`${Math.min(100,100*e.block/e.maxHp)}%`;$('energyHint').textContent=`Energy ${p.energy}/${p.maxEnergy} · Hunger ${state.hunger}/${state.maxHunger}`;$('dossierCn').textContent=e.cn;$('dossierEn').textContent=e.en.toUpperCase();$('enemySummary').textContent=e.summary;let phaseTag=e.id==='lord'?`<span class="tag">${bossPhase(e)===1?'阶段 I · 守势试探':bossPhase(e)===2?'阶段 II · 猩红压制':'阶段 III · 濒死狂攻'}</span>`:'';
 $('enemyTags').innerHTML=e.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')+phaseTag;$('patternList').innerHTML=e.pattern.map((x,i)=>`<div class="pattern-line"><span>${i+1}</span><b>${escapeHtml(x)}</b></div>`).join('');
 let br=$('bossRule');if(e.id==='lord'){let ph=bossPhase(e);br.style.display='block';br.innerHTML=ph===1?'阶段规则：完整公开三步。':ph===2?'阶段规则：第 3 个敌人行动被迷雾隐藏，预估只计算已知行动。':`阶段规则：本轮第 ${b.sealedSlot+1} 个玩家计划槽被封印。`;}else br.style.display='none';
- $('timeline').innerHTML=[0,1,2].map(i=>{if(b.lockedIntents[i]?.hidden)return `<div class="intent-card enemy-card hidden-intent"><div class="turn">TURN ${(playback?.trace.state.battle.turn ?? b.turn)+i}</div><b>${actionNameHtml('time_snare','???')}</b><span>赤塔迷雾遮蔽行动</span></div>`;let a=currentIntent(i),detail=a.id==='wait'?'蓄势，不造成伤害':a.id==='guard'?`+${Math.max(0,a.block-(e.guardDown?.turns>0?e.guardDown.amount:0))} Block`:`${Math.max(0,a.dmg-(e.damageDown?.turns>0?e.damageDown.amount:0))} 伤害${a.poison?' + 毒':''}${a.drain?' -能量':''}`;return `<div class="intent-card enemy-card"><div class="turn">TURN ${(playback?.trace.state.battle.turn ?? b.turn)+i}</div><b>${actionNameHtml(a.id,a.name)}</b><span>${detail}</span></div>`}).join('');renderPlan();renderActions();renderForecast();renderCombatStatuses();renderBuild();renderMeta()}
+ $('timeline').innerHTML=Array.from({length:requiredSigils},(_,i)=>i).map(i=>{if(b.lockedIntents[i]?.hidden)return `<div class="intent-card enemy-card hidden-intent"><div class="turn">TURN ${(playback?.trace.state.battle.turn ?? b.turn)+i}</div><b>${actionNameHtml('time_snare','???')}</b><span>赤塔迷雾遮蔽行动</span></div>`;let a=currentIntent(i),detail=a.id==='wait'?'蓄势，不造成伤害':a.id==='guard'?`+${Math.max(0,a.block-(e.guardDown?.turns>0?e.guardDown.amount:0))} Block`:`${Math.max(0,a.dmg-(e.damageDown?.turns>0?e.damageDown.amount:0))} 伤害${a.poison?' + 毒':''}${a.drain?' -能量':''}`;return `<div class="intent-card enemy-card"><div class="turn">TURN ${(playback?.trace.state.battle.turn ?? b.turn)+i}</div><b>${actionNameHtml(a.id,a.name)}</b><span>${detail}</span></div>`}).join('');renderPlan();renderActions();renderForecast();renderCombatStatuses();renderBuild();renderMeta()}
 
 
 function clearForecastHud(){['phpDelta','energyDelta','pblockDelta','hungerDelta','ehpDelta','eblockDelta'].forEach(id=>{let el=$(id);if(el){el.textContent='';el.className='delta'}});['phpForecast','energyForecast','pblockForecast','hungerForecast','ehpForecast','eblockForecast'].forEach(id=>{let el=$(id);if(el){el.className='forecast-segment';el.style.left='0%';el.style.width='0%'}});$('playerStat')?.classList.remove('preview-change');$('enemyStat')?.classList.remove('preview-change')}
@@ -387,7 +364,7 @@ function setForecastDelta(deltaId,segId,current,pred,max){let d=pred-current,el=
 function renderForecast(){clearForecastHud();let b=state.battle;if(!b||b.resolving)return;let f=simulatePlan();if(!f)return;setForecastDelta('phpDelta','phpForecast',f.start.php,f.p.hp,state.player.maxHp);setForecastDelta('energyDelta','energyForecast',f.start.en,f.p.energy,state.player.maxEnergy);setForecastDelta('pblockDelta','pblockForecast',f.start.pblock,f.p.block,state.player.maxHp);if(!state.training)setForecastDelta('hungerDelta','hungerForecast',f.start.hunger,f.hunger,state.maxHunger);setForecastDelta('ehpDelta','ehpForecast',f.start.ehp,f.e.hp,b.enemy.maxHp);setForecastDelta('eblockDelta','eblockForecast',f.start.eblock,f.e.block,b.enemy.maxHp)}
 function renderPlan(){
  let b=state.battle,filled=filledPlanCount(b);
- $('playerPlan').innerHTML=[0,1,2].map(i=>{
+ $('playerPlan').innerHTML=Array.from({length:requiredSigils},(_,i)=>i).map(i=>{
    let en=projectedEnergyBeforeSlot(i);
    if(b.sealedSlot===i)return `<div class="intent-card plan-card sealed"><div class="slot">第 ${i+1} 步</div><b>${actionNameHtml('wait','封印')}</b><span>赤塔领主封锁此计划槽</span><div class="costline">无法安排</div></div>`;
    let id=b.plan[i],a=id?actionInfo(id):null;
@@ -405,16 +382,8 @@ function renderActions(){
 
 function renderBuild(){let items=[];for(let [id,lv] of Object.entries(state.player.skills))if(lv)items.push(`<div class="build-item" title="${activeSkills[id].desc(lv)}"><b>${activeSkills[id].cn} Lv.${lv}</b></div>`);for(let [id,lv] of Object.entries(state.player.passives))if(lv)items.push(`<div class="build-item" title="${passiveDefs[id].desc(lv)}"><b>${passiveDefs[id].cn} Lv.${lv}</b></div>`);for(let [id,lv] of Object.entries(state.player.equipment))if(lv)items.push(`<div class="build-item" title="${equipDefs[id].desc(lv)}"><b>${equipDefs[id].cn} Lv.${lv}</b></div>`);$('buildList').innerHTML=items.length?items.join(''):'<div class="build-item"><b>尚无构筑</b><div>升级时进行三选一。</div></div>'}
 function openBook(){
- let cards=[
-  {cn:'三步规划',text:'敌人先锁定未来三步。你最多安排三步行动，未填槽位视为等待；预估会实时显示，点击执行后一次结算三回合。'},
-  {cn:'成长与流派',text:'击败敌人获得 EXP。升级才触发三选一；后期新技能会追赶等级，并轻度偏向你已经形成的构筑流派，但仍会出现跨流派选项。'},
-  {cn:'区域生态',text:'无限世界由大型生态区域组成：风歌平原、黑木密林、灰苔湿地、裂脊高地、灰烬边境。区域会影响地形聚集和常见敌人。'},
-  {cn:'营火与料理',text:'地图上偶尔会出现遗火营地。每处营火只能使用一次，可休息或把高风险食材加工成更稳定、更有针对性的料理。'},
-  {cn:'稀有战术',text:'紫色三选一代表稀有战术技能。高级战术可以打断、延迟或交换敌人三步计划；部分需要永久解锁。'},
-  {cn:'职业与永久解锁',text:'S 评价可解锁盾誓守卫；击败赤塔领主可解锁符文术士和时间系战术；累计采集 10 次可解锁黑木猎手。局外成长自动保存至项目 saves 目录，打开游戏自动恢复。'},
-  {cn:'战术评价',text:'战后按受伤与战斗回合给出 S/A/B/C 评价，并奖励少量额外经验。精准格挡、精确终结等构筑进一步奖励小数值计算。'},
-  {cn:'生存',text:'地图移动、采集与真实战斗都会消耗饥饿。采集可能遭遇伏击或负面状态；不同食物也有各自的利弊。饥饿为 0 后每回合损失 1 HP。'}
- ];
+ const rules=R.resources.data.rules;
+ let cards=rules.handbook.map(c=>({...c,text:R.resources.format(c.text,{starvationDamage:worldConfig.starvationDamage,hunterHarvests:rules.growth.unlocks.find(u=>u.id==='class_hunter').value})}));
  for(let [id,d] of Object.entries(rewardPool)){let lv=levelOf(id);if(lv)cards.push({cn:`${d.cn} · Lv.${lv}`,text:d.desc(lv)})}
  $('bookGrid').innerHTML=cards.map(c=>`<div class="book-card"><h3>${c.cn}</h3><p>${c.text}</p></div>`).join('');
  $('bookOverlay').classList.add('show')
@@ -637,7 +606,7 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
         resetMapCamera();
         setScreen(state.inBattle ? 'battle' : 'world');
       }
-      toast(load ? '已读取本地存档 manual' : '已保存本地存档 manual');
+      toast(load ? '已读取本地存档 manual，Agent 已接管' : '已保存本地存档 manual');
     } catch (error) {
       toast(error.message || (load ? '读取失败' : '保存失败'));
     } finally {
@@ -830,7 +799,7 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
       if (settled && !playback) lastCombatReport = settled;
       renderBattle();
       const forecast = simulatePlan();
-      $('combatAnalysis').innerHTML = forecast ? `<b>${forecast.partial ? '已知行动预估：' : '三步预估：'}</b>生命 ${forecast.start.php} → ${forecast.p.hp} · 敌方生命 ${forecast.start.ehp} → ${forecast.e.hp} · 能量 ${forecast.start.en} → ${forecast.p.energy}${forecast.partial ? '。迷雾后的行动未计入。' : '。空槽会等待，每回合结束恢复 1 点能量。'}` : '<b>规划阶段：</b>安排三步行动，然后执行。';
+      $('combatAnalysis').innerHTML = forecast ? `<b>${forecast.partial ? '已知行动预估：' : '三步预估：'}</b>生命 ${forecast.start.php} → ${forecast.p.hp} · 敌方生命 ${forecast.start.ehp} → ${forecast.e.hp} · 能量 ${forecast.start.en} → ${forecast.p.energy}${forecast.partial ? '。迷雾后的行动未计入。' : `。空槽会等待，每回合结束恢复 ${combatConfig.energyPerStep} 点能量。`}` : '<b>规划阶段：</b>安排三步行动，然后执行。';
       if (playback) {
         $('combatAnalysis').innerHTML = `<b>正在播放第 ${playback.index + 1} 步：</b>${escapeHtml(playback.label)}`;
         $('planStatus').textContent = `正在播放第 ${playback.index + 1} 步`;

@@ -1,0 +1,831 @@
+{
+  "power_strike": {
+    "kind": "skill",
+    "cn": "重斩",
+    "unlock": 1,
+    "cost": 1,
+    "max": 5,
+    "vfx": "heavy",
+    "sfx": "slash",
+    "levels": [
+      {
+        "damageBonus": 3,
+        "shatter": 0,
+        "unblockedBonus": 0,
+        "description": "消耗 {cost} 能量，造成 攻击+{damageBonus}。{details}"
+      },
+      {
+        "damageBonus": 4,
+        "shatter": 0,
+        "unblockedBonus": 0,
+        "description": "消耗 {cost} 能量，造成 攻击+{damageBonus}。{details}"
+      },
+      {
+        "damageBonus": 5,
+        "shatter": 2,
+        "unblockedBonus": 0,
+        "description": "消耗 {cost} 能量，造成 攻击+{damageBonus}。{details}"
+      },
+      {
+        "damageBonus": 6,
+        "shatter": 2,
+        "unblockedBonus": 0,
+        "description": "消耗 {cost} 能量，造成 攻击+{damageBonus}。{details}"
+      },
+      {
+        "damageBonus": 7,
+        "shatter": 2,
+        "unblockedBonus": 2,
+        "description": "消耗 {cost} 能量，造成 攻击+{damageBonus}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "shatter",
+        "text": " 施放前粉碎敌人 {shatter} Block。"
+      },
+      {
+        "when": "unblockedBonus",
+        "text": " 若敌人没有 Block，额外 +{unblockedBonus} 伤害。"
+      }
+    ]
+  },
+  "guard_stance": {
+    "kind": "skill",
+    "cn": "守势",
+    "unlock": 1,
+    "cost": 0,
+    "max": 5,
+    "vfx": "shield",
+    "sfx": "block",
+    "levels": [
+      {
+        "block": 5,
+        "attackBonus": 0,
+        "thornsDamage": 0,
+        "thornsTurns": 0,
+        "description": "获得 {block} 格挡。{details}"
+      },
+      {
+        "block": 7,
+        "attackBonus": 0,
+        "thornsDamage": 0,
+        "thornsTurns": 0,
+        "description": "获得 {block} 格挡。{details}"
+      },
+      {
+        "block": 9,
+        "attackBonus": 2,
+        "thornsDamage": 0,
+        "thornsTurns": 0,
+        "description": "获得 {block} 格挡。{details}"
+      },
+      {
+        "block": 11,
+        "attackBonus": 2,
+        "thornsDamage": 0,
+        "thornsTurns": 0,
+        "description": "获得 {block} 格挡。{details}"
+      },
+      {
+        "block": 13,
+        "attackBonus": 2,
+        "thornsDamage": 2,
+        "thornsTurns": 2,
+        "description": "获得 {block} 格挡。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "attackBonus",
+        "text": " 若本步敌人准备攻击，再 +{attackBonus} Block。"
+      },
+      {
+        "when": "thornsTurns",
+        "text": " 并进入荆棘架势 {thornsTurns} 回合：受格挡的攻击反伤 {thornsDamage}。"
+      }
+    ]
+  },
+  "heal": {
+    "kind": "skill",
+    "cn": "治愈祷言",
+    "unlock": 1,
+    "cost": 1,
+    "max": 5,
+    "vfx": "heal",
+    "sfx": "heal",
+    "levels": [
+      {
+        "heal": 5,
+        "cleanse": false,
+        "block": 0,
+        "description": "恢复 {heal} HP。{details}"
+      },
+      {
+        "heal": 7,
+        "cleanse": false,
+        "block": 0,
+        "description": "恢复 {heal} HP。{details}"
+      },
+      {
+        "heal": 9,
+        "cleanse": true,
+        "block": 0,
+        "description": "恢复 {heal} HP。{details}"
+      },
+      {
+        "heal": 11,
+        "cleanse": true,
+        "block": 0,
+        "description": "恢复 {heal} HP。{details}"
+      },
+      {
+        "heal": 13,
+        "cleanse": true,
+        "block": 3,
+        "description": "恢复 {heal} HP。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "cleanse",
+        "text": " 清除中毒。"
+      },
+      {
+        "when": "block",
+        "text": " 并获得 {block} Block。"
+      }
+    ]
+  },
+  "armor_break": {
+    "kind": "skill",
+    "cn": "破甲斩",
+    "unlock": 2,
+    "cost": 1,
+    "max": 5,
+    "vfx": "break",
+    "sfx": "metal",
+    "levels": [
+      {
+        "damage": 3,
+        "armorDown": 1,
+        "turns": 3,
+        "zeroArmorDamage": 0,
+        "description": "造成 {damage} 基础伤害，并使护甲 -{armorDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 4,
+        "armorDown": 1,
+        "turns": 3,
+        "zeroArmorDamage": 0,
+        "description": "造成 {damage} 基础伤害，并使护甲 -{armorDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 5,
+        "armorDown": 2,
+        "turns": 4,
+        "zeroArmorDamage": 0,
+        "description": "造成 {damage} 基础伤害，并使护甲 -{armorDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 6,
+        "armorDown": 2,
+        "turns": 4,
+        "zeroArmorDamage": 0,
+        "description": "造成 {damage} 基础伤害，并使护甲 -{armorDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 7,
+        "armorDown": 3,
+        "turns": 5,
+        "zeroArmorDamage": 3,
+        "description": "造成 {damage} 基础伤害，并使护甲 -{armorDown}，持续 {turns} 回合。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "zeroArmorDamage",
+        "text": " 若因此降至 0 护甲，追加 {zeroArmorDamage} 点无视护甲伤害。"
+      }
+    ]
+  },
+  "charge": {
+    "kind": "skill",
+    "cn": "蓄力",
+    "unlock": 2,
+    "cost": 0,
+    "max": 5,
+    "vfx": "charge",
+    "sfx": "magic",
+    "levels": [
+      {
+        "bonus": 4,
+        "energy": 0,
+        "pierce": false,
+        "description": "下一次造成伤害时额外 +{bonus}。{details}"
+      },
+      {
+        "bonus": 5,
+        "energy": 0,
+        "pierce": false,
+        "description": "下一次造成伤害时额外 +{bonus}。{details}"
+      },
+      {
+        "bonus": 6,
+        "energy": 1,
+        "pierce": false,
+        "description": "下一次造成伤害时额外 +{bonus}。{details}"
+      },
+      {
+        "bonus": 7,
+        "energy": 1,
+        "pierce": false,
+        "description": "下一次造成伤害时额外 +{bonus}。{details}"
+      },
+      {
+        "bonus": 8,
+        "energy": 1,
+        "pierce": true,
+        "description": "下一次造成伤害时额外 +{bonus}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "energy",
+        "text": " 立即恢复 {energy} 能量。"
+      },
+      {
+        "when": "pierce",
+        "text": " 下一次伤害同时无视护甲。"
+      }
+    ]
+  },
+  "execute": {
+    "kind": "skill",
+    "cn": "处决",
+    "unlock": 3,
+    "cost": 2,
+    "max": 5,
+    "vfx": "execute",
+    "sfx": "metal",
+    "levels": [
+      {
+        "threshold": 5,
+        "damage": 8,
+        "fallbackDamage": 1,
+        "killEnergy": 0,
+        "description": "敌人 HP ≤ {threshold} 时造成 {damage} 无视护甲伤害，否则造成 {fallbackDamage}。{details}"
+      },
+      {
+        "threshold": 6,
+        "damage": 10,
+        "fallbackDamage": 1,
+        "killEnergy": 0,
+        "description": "敌人 HP ≤ {threshold} 时造成 {damage} 无视护甲伤害，否则造成 {fallbackDamage}。{details}"
+      },
+      {
+        "threshold": 7,
+        "damage": 12,
+        "fallbackDamage": 1,
+        "killEnergy": 0,
+        "description": "敌人 HP ≤ {threshold} 时造成 {damage} 无视护甲伤害，否则造成 {fallbackDamage}。{details}"
+      },
+      {
+        "threshold": 8,
+        "damage": 14,
+        "fallbackDamage": 1,
+        "killEnergy": 0,
+        "description": "敌人 HP ≤ {threshold} 时造成 {damage} 无视护甲伤害，否则造成 {fallbackDamage}。{details}"
+      },
+      {
+        "threshold": 9,
+        "damage": 16,
+        "fallbackDamage": 1,
+        "killEnergy": 2,
+        "description": "敌人 HP ≤ {threshold} 时造成 {damage} 无视护甲伤害，否则造成 {fallbackDamage}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "killEnergy",
+        "text": " 处决击杀时返还 {killEnergy} 能量。"
+      }
+    ]
+  },
+  "fireball": {
+    "kind": "skill",
+    "cn": "火球术",
+    "unlock": 3,
+    "cost": 2,
+    "max": 5,
+    "vfx": "fireball",
+    "sfx": "fireball",
+    "levels": [
+      {
+        "damage": 5,
+        "turns": 2,
+        "burnDamage": 1,
+        "burningBonus": 0,
+        "description": "造成 {damage} 无视护甲伤害，并灼烧 {turns} 回合，每回合 {burnDamage}。{details}"
+      },
+      {
+        "damage": 7,
+        "turns": 3,
+        "burnDamage": 1,
+        "burningBonus": 0,
+        "description": "造成 {damage} 无视护甲伤害，并灼烧 {turns} 回合，每回合 {burnDamage}。{details}"
+      },
+      {
+        "damage": 9,
+        "turns": 3,
+        "burnDamage": 2,
+        "burningBonus": 0,
+        "description": "造成 {damage} 无视护甲伤害，并灼烧 {turns} 回合，每回合 {burnDamage}。{details}"
+      },
+      {
+        "damage": 11,
+        "turns": 4,
+        "burnDamage": 2,
+        "burningBonus": 0,
+        "description": "造成 {damage} 无视护甲伤害，并灼烧 {turns} 回合，每回合 {burnDamage}。{details}"
+      },
+      {
+        "damage": 13,
+        "turns": 4,
+        "burnDamage": 2,
+        "burningBonus": 3,
+        "description": "造成 {damage} 无视护甲伤害，并灼烧 {turns} 回合，每回合 {burnDamage}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "burningBonus",
+        "text": " 已在燃烧的敌人额外受到 {burningBonus} 伤害。"
+      }
+    ]
+  },
+  "bleed_strike": {
+    "kind": "skill",
+    "cn": "放血斩",
+    "unlock": 4,
+    "cost": 1,
+    "max": 5,
+    "vfx": "bleed",
+    "sfx": "slash",
+    "levels": [
+      {
+        "turns": 2,
+        "bleedDamage": 1,
+        "bleedingBonus": 0,
+        "description": "造成普通攻击伤害，并施加 {turns} 回合流血，每回合 {bleedDamage}。{details}"
+      },
+      {
+        "turns": 3,
+        "bleedDamage": 1,
+        "bleedingBonus": 0,
+        "description": "造成普通攻击伤害，并施加 {turns} 回合流血，每回合 {bleedDamage}。{details}"
+      },
+      {
+        "turns": 3,
+        "bleedDamage": 2,
+        "bleedingBonus": 1,
+        "description": "造成普通攻击伤害，并施加 {turns} 回合流血，每回合 {bleedDamage}。{details}"
+      },
+      {
+        "turns": 4,
+        "bleedDamage": 2,
+        "bleedingBonus": 1,
+        "description": "造成普通攻击伤害，并施加 {turns} 回合流血，每回合 {bleedDamage}。{details}"
+      },
+      {
+        "turns": 4,
+        "bleedDamage": 3,
+        "bleedingBonus": 1,
+        "description": "造成普通攻击伤害，并施加 {turns} 回合流血，每回合 {bleedDamage}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "bleedingBonus",
+        "text": " 对已流血目标再提高每回合 {bleedingBonus} 点流血。"
+      }
+    ]
+  },
+  "frost_bind": {
+    "kind": "skill",
+    "cn": "霜缚",
+    "unlock": 4,
+    "cost": 1,
+    "max": 5,
+    "vfx": "frost",
+    "sfx": "magic",
+    "levels": [
+      {
+        "damage": 2,
+        "damageDown": 1,
+        "turns": 3,
+        "guardDown": 0,
+        "shatter": 0,
+        "description": "造成 {damage} 无视护甲伤害，并使敌人伤害 -{damageDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 3,
+        "damageDown": 2,
+        "turns": 3,
+        "guardDown": 0,
+        "shatter": 0,
+        "description": "造成 {damage} 无视护甲伤害，并使敌人伤害 -{damageDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 4,
+        "damageDown": 2,
+        "turns": 4,
+        "guardDown": 2,
+        "shatter": 0,
+        "description": "造成 {damage} 无视护甲伤害，并使敌人伤害 -{damageDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 5,
+        "damageDown": 3,
+        "turns": 4,
+        "guardDown": 2,
+        "shatter": 0,
+        "description": "造成 {damage} 无视护甲伤害，并使敌人伤害 -{damageDown}，持续 {turns} 回合。{details}"
+      },
+      {
+        "damage": 6,
+        "damageDown": 3,
+        "turns": 5,
+        "guardDown": 2,
+        "shatter": 3,
+        "description": "造成 {damage} 无视护甲伤害，并使敌人伤害 -{damageDown}，持续 {turns} 回合。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "guardDown",
+        "text": " 同时使其格挡效果 -{guardDown}。"
+      },
+      {
+        "when": "shatter",
+        "text": " 施放时粉碎 {shatter} Block。"
+      }
+    ]
+  },
+  "riposte": {
+    "kind": "skill",
+    "cn": "反击架势",
+    "unlock": 5,
+    "cost": 0,
+    "max": 5,
+    "vfx": "shield",
+    "sfx": "block",
+    "levels": [
+      {
+        "block": 3,
+        "damage": 3,
+        "turns": 1,
+        "description": "获得 {block} 格挡；完全挡住攻击时反击 {damage}。{details}"
+      },
+      {
+        "block": 4,
+        "damage": 4,
+        "turns": 1,
+        "description": "获得 {block} 格挡；完全挡住攻击时反击 {damage}。{details}"
+      },
+      {
+        "block": 5,
+        "damage": 5,
+        "turns": 2,
+        "description": "获得 {block} 格挡；完全挡住攻击时反击 {damage}。{details}"
+      },
+      {
+        "block": 6,
+        "damage": 6,
+        "turns": 2,
+        "description": "获得 {block} 格挡；完全挡住攻击时反击 {damage}。{details}"
+      },
+      {
+        "block": 7,
+        "damage": 10,
+        "turns": 2,
+        "description": "获得 {block} 格挡；完全挡住攻击时反击 {damage}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "turns",
+        "text": " 架势持续 {turns} 回合。"
+      }
+    ]
+  },
+  "life_drain": {
+    "kind": "skill",
+    "cn": "汲取生命",
+    "unlock": 6,
+    "cost": 2,
+    "max": 5,
+    "vfx": "drain",
+    "sfx": "magic",
+    "levels": [
+      {
+        "damage": 4,
+        "healRate": 0.5,
+        "overflowBlock": false,
+        "description": "造成 {damage} 无视护甲伤害，并恢复实际伤害的{healPercent}%。{details}"
+      },
+      {
+        "damage": 6,
+        "healRate": 0.5,
+        "overflowBlock": false,
+        "description": "造成 {damage} 无视护甲伤害，并恢复实际伤害的{healPercent}%。{details}"
+      },
+      {
+        "damage": 8,
+        "healRate": 0.5,
+        "overflowBlock": true,
+        "description": "造成 {damage} 无视护甲伤害，并恢复实际伤害的{healPercent}%。{details}"
+      },
+      {
+        "damage": 10,
+        "healRate": 0.5,
+        "overflowBlock": true,
+        "description": "造成 {damage} 无视护甲伤害，并恢复实际伤害的{healPercent}%。{details}"
+      },
+      {
+        "damage": 12,
+        "healRate": 0.75,
+        "overflowBlock": true,
+        "description": "造成 {damage} 无视护甲伤害，并恢复实际伤害的{healPercent}%。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "overflowBlock",
+        "text": " 溢出的治疗转化为 Block。"
+      }
+    ]
+  },
+  "whirlwind": {
+    "kind": "skill",
+    "cn": "旋风双斩",
+    "unlock": 7,
+    "cost": 2,
+    "max": 5,
+    "vfx": "heavy",
+    "sfx": "slash",
+    "levels": [
+      {
+        "hits": 2,
+        "damageBonus": 0,
+        "description": "连续攻击{hits}次，每次造成 攻击+{damageBonus} 的伤害。"
+      },
+      {
+        "hits": 2,
+        "damageBonus": 1,
+        "description": "连续攻击{hits}次，每次造成 攻击+{damageBonus} 的伤害。"
+      },
+      {
+        "hits": 2,
+        "damageBonus": 1,
+        "description": "连续攻击{hits}次，每次造成 攻击+{damageBonus} 的伤害。"
+      },
+      {
+        "hits": 2,
+        "damageBonus": 2,
+        "description": "连续攻击{hits}次，每次造成 攻击+{damageBonus} 的伤害。"
+      },
+      {
+        "hits": 3,
+        "damageBonus": 2,
+        "description": "连续攻击{hits}次，每次造成 攻击+{damageBonus} 的伤害。"
+      }
+    ]
+  },
+  "mirror_guard": {
+    "kind": "skill",
+    "rare": true,
+    "cn": "镜式格挡",
+    "unlock": 4,
+    "cost": 1,
+    "max": 3,
+    "vfx": "shield",
+    "sfx": "block",
+    "levels": [
+      {
+        "attackBonus": 0,
+        "block": 3,
+        "energy": 0,
+        "description": "根据本步敌人行动架盾：若其攻击，获得等于预计伤害{attackBonusText}的 Block；若其不攻击，获得 {block} Block。{details}"
+      },
+      {
+        "attackBonus": 1,
+        "block": 4,
+        "energy": 0,
+        "description": "根据本步敌人行动架盾：若其攻击，获得等于预计伤害{attackBonusText}的 Block；若其不攻击，获得 {block} Block。{details}"
+      },
+      {
+        "attackBonus": 2,
+        "block": 5,
+        "energy": 1,
+        "description": "根据本步敌人行动架盾：若其攻击，获得等于预计伤害{attackBonusText}的 Block；若其不攻击，获得 {block} Block。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "energy",
+        "text": " 恢复 {energy} 能量。"
+      }
+    ]
+  },
+  "break_rhythm": {
+    "kind": "skill",
+    "rare": true,
+    "cn": "破势",
+    "unlock": 5,
+    "cost": 1,
+    "max": 3,
+    "vfx": "break",
+    "sfx": "metal",
+    "levels": [
+      {
+        "damageBonus": 1,
+        "reduce": 3,
+        "cancelGuard": false,
+        "description": "造成 攻击+{damageBonus} 伤害，并削弱本步敌人行动：伤害/格挡 -{reduce}。{details}"
+      },
+      {
+        "damageBonus": 2,
+        "reduce": 4,
+        "cancelGuard": false,
+        "description": "造成 攻击+{damageBonus} 伤害，并削弱本步敌人行动：伤害/格挡 -{reduce}。{details}"
+      },
+      {
+        "damageBonus": 3,
+        "reduce": 5,
+        "cancelGuard": true,
+        "description": "造成 攻击+{damageBonus} 伤害，并削弱本步敌人行动：伤害/格挡 -{reduce}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "cancelGuard",
+        "text": " 若本步是格挡，则直接打断该格挡。"
+      }
+    ]
+  },
+  "stagger": {
+    "kind": "skill",
+    "rare": true,
+    "meta": "interrupt_tactics",
+    "cn": "断势击",
+    "unlock": 4,
+    "cost": 1,
+    "cooldown": 2,
+    "max": 3,
+    "vfx": "interrupt",
+    "sfx": "metal",
+    "levels": [
+      {
+        "damageBonus": 1,
+        "threshold": 4,
+        "description": "造成 攻击+{damageBonus} 伤害；若实际造成至少 {threshold} 点伤害，取消敌人本步行动。施放后冷却 {cooldown} 步。"
+      },
+      {
+        "damageBonus": 2,
+        "threshold": 3,
+        "description": "造成 攻击+{damageBonus} 伤害；若实际造成至少 {threshold} 点伤害，取消敌人本步行动。施放后冷却 {cooldown} 步。"
+      },
+      {
+        "damageBonus": 3,
+        "threshold": 2,
+        "description": "造成 攻击+{damageBonus} 伤害；若实际造成至少 {threshold} 点伤害，取消敌人本步行动。施放后冷却 {cooldown} 步。"
+      }
+    ]
+  },
+  "time_snare": {
+    "kind": "skill",
+    "rare": true,
+    "meta": "time_tactics",
+    "cn": "时滞刻印",
+    "unlock": 5,
+    "cost": 1,
+    "cooldown": 1,
+    "max": 3,
+    "vfx": "time",
+    "sfx": "magic",
+    "levels": [
+      {
+        "block": 0,
+        "energy": 0,
+        "description": "本步不造成伤害，将敌人本步行动推迟到下一组计划。{details}施放后冷却 {cooldown} 步。"
+      },
+      {
+        "block": 2,
+        "energy": 0,
+        "description": "本步不造成伤害，将敌人本步行动推迟到下一组计划。{details}施放后冷却 {cooldown} 步。"
+      },
+      {
+        "block": 2,
+        "energy": 1,
+        "description": "本步不造成伤害，将敌人本步行动推迟到下一组计划。{details}施放后冷却 {cooldown} 步。"
+      }
+    ],
+    "details": [
+      {
+        "when": "block",
+        "text": " 获得 {block} Block。"
+      },
+      {
+        "when": "energy",
+        "text": " 并恢复 {energy} 能量。"
+      }
+    ]
+  },
+  "fate_swap": {
+    "kind": "skill",
+    "rare": true,
+    "meta": "time_tactics",
+    "cn": "逆序符",
+    "unlock": 5,
+    "cost": 1,
+    "max": 3,
+    "vfx": "swap",
+    "sfx": "magic",
+    "levels": [
+      {
+        "block": 0,
+        "energy": 0,
+        "description": "交换本步之后剩余的两个敌人行动。{details}"
+      },
+      {
+        "block": 0,
+        "energy": 1,
+        "description": "交换本步之后剩余的两个敌人行动。{details}"
+      },
+      {
+        "block": 2,
+        "energy": 1,
+        "description": "交换本步之后剩余的两个敌人行动。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "energy",
+        "text": " 获得 {energy} 能量。"
+      },
+      {
+        "when": "block",
+        "text": " 再获得 {block} Block。"
+      }
+    ]
+  },
+  "combo_strike": {
+    "kind": "skill",
+    "rare": true,
+    "cn": "连携斩",
+    "unlock": 4,
+    "cost": 1,
+    "max": 5,
+    "vfx": "slash",
+    "sfx": "slash",
+    "levels": [
+      {
+        "damageBonus": 1,
+        "comboBonus": 3,
+        "comboEnergy": 0,
+        "description": "造成 攻击+{damageBonus} 伤害；若上一步是防御类行动，再 +{comboBonus}。{details}"
+      },
+      {
+        "damageBonus": 2,
+        "comboBonus": 4,
+        "comboEnergy": 0,
+        "description": "造成 攻击+{damageBonus} 伤害；若上一步是防御类行动，再 +{comboBonus}。{details}"
+      },
+      {
+        "damageBonus": 3,
+        "comboBonus": 5,
+        "comboEnergy": 0,
+        "description": "造成 攻击+{damageBonus} 伤害；若上一步是防御类行动，再 +{comboBonus}。{details}"
+      },
+      {
+        "damageBonus": 4,
+        "comboBonus": 6,
+        "comboEnergy": 0,
+        "description": "造成 攻击+{damageBonus} 伤害；若上一步是防御类行动，再 +{comboBonus}。{details}"
+      },
+      {
+        "damageBonus": 5,
+        "comboBonus": 7,
+        "comboEnergy": 1,
+        "description": "造成 攻击+{damageBonus} 伤害；若上一步是防御类行动，再 +{comboBonus}。{details}"
+      }
+    ],
+    "details": [
+      {
+        "when": "comboEnergy",
+        "text": " 连携成功时返还 {comboEnergy} 能量。"
+      }
+    ]
+  }
+}

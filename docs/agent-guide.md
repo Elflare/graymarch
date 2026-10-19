@@ -14,7 +14,7 @@ uv run graymarch --no-browser --port 8765 --config config.example.toml
 
 启动后自动打开一次性配对页面。使用 `--no-browser` 时，由玩家在本机打开 `.runtime/open-game.html` 并点击链接，五分钟内有效；过期重新启动。这个文件是凭据，不分享、不入库。页面成功连接后 `status.ready=true`。
 
-外部 agent 使用 `.runtime/agent-token` 中的 Bearer token。令牌每次启动重新生成；暂停人工接管只阻止动作、不轮换令牌，再次开启 agent 时仍使用同一进程的令牌。令牌只能在本机读取使用，不写入文档、日志或命令仓库。游戏默认 `human` 模式，玩家在页面中明确启用 agent 后才能提交动作。恢复人工模式会拒绝新 agent 动作；已受理动作可能完成，应先确认结果再人工操作。
+外部 agent 使用 `.runtime/agent-token` 中的 Bearer token。令牌每次启动重新生成；暂停人工接管只阻止动作、不轮换令牌，再次开启 agent 时仍使用同一进程的令牌。令牌只能在本机读取使用，不写入文档、日志或命令仓库。游戏启动默认 `agent` 模式；页面资源与局外成长加载完成、桥接 ready 后即可提交动作。恢复人工模式会拒绝新 agent 动作；已受理动作可能完成，应先确认结果再人工操作。
 
 最小读取示例（在项目根目录）：
 
@@ -29,7 +29,7 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 
 - `POST /api/owner/control`，`{"mode":"human"}` 或 `{"mode":"agent"}`
 - `POST /api/v1/saves/manual`：保存到固定 `saves/manual.json`
-- `POST /api/v1/saves/manual/load`：读取固定文件，先暂停 agent
+- `POST /api/v1/saves/manual/load`：读取固定文件，先暂停两端 agent；成功后自动恢复 agent，失败则保留原旅程和人工模式
 
 管理端点要求同源 Origin 和页面登录态，不接受任意文件路径。普通玩法 agent 不应通过浏览器凭据绕过角色限制。
 
@@ -72,6 +72,8 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 
 动作默认返回紧凑 JSON：`status`、`revision`、`changes`。工具比较本次提交前后的观察，值为结算后的绝对值，不是需再累加的差额。嵌套字段只列变动项，清除项为 null，数组变化时整体替换。玩家只报告决策相关属性；零库存仅在数量实际变为零时报告，不把战斗帧省略背包误认为物品清空。伤害计数和前一行动只在已有构筑需要它们时出现。
 
+成功动作的原始回执在库存实际变化时附 `inventoryChanges`，只列变化物品的结算后数量（含归零）。工具将它并入 `changes.player.inventory`，因此采集后立即遇袭也会报告收获，例如 `{"berries":2}` 表示现有两份黑莓。战斗 compact 帧仍省略完整背包；重复回执中的数量仍是绝对值，不再累加。
+
 下一步必需的新上下文直接随动作返回：`changes.world` 包含周边地形/动态费用、采集/营火机会和导航的变化，邻居用方向作键，坐标由当前位置推导，cost=null 表示不可通行。进入战斗带敌人数值、锁定三步、封印槽和技能能耗；同场后续只列变化，隐藏意图仅显示 hidden=true。选项出现或轮次更新带可选项 ID、说明和效果；不可用选项保留标签与原因，省略不可使用的配方效果。新增/升级的技能、被动、装备，以及新获得的食物才附相关定义。战斗结束仅报告本次 outcome，真实胜利加 grade，新永久解锁列入 unlocks；选项结束用 `choice: closed`。不重复输出稳定定义、整份观察、事件和旧战报。pending、unknown 和错误保留 commandId 及恢复信息。多步途中经过的营火、聚落、遗迹以 movement.sites 简记坐标、地形和是否已使用，避免省略终点之前的补给机会。
 
 需要补充信息时使用查询命令：`observe` 默认输出角色及当前决策；`--scope scene` 只给周边/战斗/选项，`--scope build` 给构筑定义，`--scope inventory` 只给非零库存，`--scope player` 给角色属性，`--scope map` 只给当前中心半径 3 范围内的已发现地图（scope=local，不代表全局地图）。player/inventory 使用主动完整玩家查询，局部 map 使用主动场景查询，因此受宿主 full_info 限频约束。其他查询省略协议/身份字符串、零库存、地图正文和旧战报；`information --scope scene` 也使用相同精简场景视图。catalog 仅列定义及未在定义中重复的基础动作；preview 保留 partial/blockedAt、预测数值和实际覆盖的逐步结果，省略敌人美术与重复规则资料。
@@ -84,7 +86,7 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 
 ### 直接使用 API
 
-1. 读 status，确认 connected、ready、controlMode；未授权就等玩家启用，不替玩家切换。
+1. 读 status，确认 connected、ready、controlMode；默认应为 agent；若玩家已人工接管，就等待其交回控制权，不替玩家切换。
 2. 读默认 compact observation。记录 `sessionId`、`runId`、`epoch`、`revision`、`scene`、`phase`。
 3. 按当前 phase 决策：世界移动/采集/补给，战斗规划/预演，选择阶段处理当前选项。
 4. 每次生成全新的 `commandId`，带观察时的身份与 `expectedRevision` 提交一个动作。不要并发提交。

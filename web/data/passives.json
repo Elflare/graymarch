@@ -1,0 +1,335 @@
+{
+  "third_strike": {
+    "kind": "passive",
+    "cn": "第三击",
+    "unlock": 1,
+    "max": 5,
+    "levels": [
+      {
+        "interval": 3,
+        "bonus": 2,
+        "description": "每第 {interval} 次造成伤害时，额外 +{bonus}。"
+      },
+      {
+        "interval": 3,
+        "bonus": 3,
+        "description": "每第 {interval} 次造成伤害时，额外 +{bonus}。"
+      },
+      {
+        "interval": 3,
+        "bonus": 4,
+        "description": "每第 {interval} 次造成伤害时，额外 +{bonus}。"
+      },
+      {
+        "interval": 3,
+        "bonus": 5,
+        "description": "每第 {interval} 次造成伤害时，额外 +{bonus}。"
+      },
+      {
+        "interval": 3,
+        "bonus": 6,
+        "description": "每第 {interval} 次造成伤害时，额外 +{bonus}。"
+      }
+    ]
+  },
+  "even_guard": {
+    "kind": "passive",
+    "cn": "偶数防线",
+    "unlock": 2,
+    "max": 5,
+    "levels": [
+      {
+        "interval": 2,
+        "block": 1,
+        "description": "战斗回合为 {interval} 的倍数时获得 {block} 格挡。"
+      },
+      {
+        "interval": 2,
+        "block": 2,
+        "description": "战斗回合为 {interval} 的倍数时获得 {block} 格挡。"
+      },
+      {
+        "interval": 2,
+        "block": 3,
+        "description": "战斗回合为 {interval} 的倍数时获得 {block} 格挡。"
+      },
+      {
+        "interval": 2,
+        "block": 4,
+        "description": "战斗回合为 {interval} 的倍数时获得 {block} 格挡。"
+      },
+      {
+        "interval": 2,
+        "block": 5,
+        "description": "战斗回合为 {interval} 的倍数时获得 {block} 格挡。"
+      }
+    ]
+  },
+  "low_hp_fury": {
+    "kind": "passive",
+    "cn": "困兽",
+    "unlock": 2,
+    "max": 5,
+    "levels": [
+      {
+        "hpRatio": 0.5,
+        "bonus": 1,
+        "description": "HP ≤ {hpPercent}% 时，造成伤害 +{bonus}。"
+      },
+      {
+        "hpRatio": 0.5,
+        "bonus": 2,
+        "description": "HP ≤ {hpPercent}% 时，造成伤害 +{bonus}。"
+      },
+      {
+        "hpRatio": 0.5,
+        "bonus": 3,
+        "description": "HP ≤ {hpPercent}% 时，造成伤害 +{bonus}。"
+      },
+      {
+        "hpRatio": 0.5,
+        "bonus": 4,
+        "description": "HP ≤ {hpPercent}% 时，造成伤害 +{bonus}。"
+      },
+      {
+        "hpRatio": 0.5,
+        "bonus": 5,
+        "description": "HP ≤ {hpPercent}% 时，造成伤害 +{bonus}。"
+      }
+    ]
+  },
+  "precise_kill": {
+    "kind": "passive",
+    "cn": "精准收尾",
+    "unlock": 3,
+    "max": 3,
+    "levels": [
+      {
+        "energy": 1,
+        "description": "击杀敌人恢复 {energy} 能量。"
+      },
+      {
+        "energy": 2,
+        "description": "击杀敌人恢复 {energy} 能量。"
+      },
+      {
+        "energy": 3,
+        "description": "击杀敌人恢复 {energy} 能量。"
+      }
+    ]
+  },
+  "reserve": {
+    "kind": "passive",
+    "cn": "符能储备",
+    "unlock": 3,
+    "max": 3,
+    "levels": [
+      {
+        "energy": 1,
+        "description": "每场战斗开始额外获得 {energy} 能量。"
+      },
+      {
+        "energy": 2,
+        "description": "每场战斗开始额外获得 {energy} 能量。"
+      },
+      {
+        "energy": 3,
+        "description": "每场战斗开始额外获得 {energy} 能量。"
+      }
+    ]
+  },
+  "pathfinder": {
+    "kind": "passive",
+    "cn": "寻路者",
+    "unlock": 2,
+    "max": 2,
+    "levels": [
+      {
+        "discount": 1,
+        "description": "地图移动饥饿消耗 -{discount}（最低 {minMoveCost}）。"
+      },
+      {
+        "discount": 2,
+        "description": "地图移动饥饿消耗 -{discount}（最低 {minMoveCost}）。"
+      }
+    ]
+  },
+  "forager": {
+    "kind": "passive",
+    "cn": "采集者",
+    "unlock": 2,
+    "max": 3,
+    "levels": [
+      {
+        "findBonus": 0.07,
+        "riskDiscount": 0.01,
+        "doubleChance": 0,
+        "description": "采集成功率 +{findPercent}%，并略微降低采集伏击/负面状态概率；高等级时有概率获得双份。"
+      },
+      {
+        "findBonus": 0.14,
+        "riskDiscount": 0.02,
+        "doubleChance": 0.12,
+        "description": "采集成功率 +{findPercent}%，并略微降低采集伏击/负面状态概率；高等级时有概率获得双份。"
+      },
+      {
+        "findBonus": 0.21000000000000002,
+        "riskDiscount": 0.02,
+        "doubleChance": 0.16999999999999998,
+        "description": "采集成功率 +{findPercent}%，并略微降低采集伏击/负面状态概率；高等级时有概率获得双份。"
+      }
+    ]
+  },
+  "hearty": {
+    "kind": "passive",
+    "cn": "大胃囊",
+    "unlock": 3,
+    "max": 4,
+    "levels": [
+      {
+        "hunger": 10,
+        "description": "最大饥饿 +{hunger}。"
+      },
+      {
+        "hunger": 20,
+        "description": "最大饥饿 +{hunger}。"
+      },
+      {
+        "hunger": 30,
+        "description": "最大饥饿 +{hunger}。"
+      },
+      {
+        "hunger": 40,
+        "description": "最大饥饿 +{hunger}。"
+      }
+    ]
+  },
+  "field_medic": {
+    "kind": "passive",
+    "cn": "野战医术",
+    "unlock": 4,
+    "max": 4,
+    "levels": [
+      {
+        "heal": 2,
+        "description": "药草额外恢复 {heal} HP。"
+      },
+      {
+        "heal": 4,
+        "description": "药草额外恢复 {heal} HP。"
+      },
+      {
+        "heal": 6,
+        "description": "药草额外恢复 {heal} HP。"
+      },
+      {
+        "heal": 8,
+        "description": "药草额外恢复 {heal} HP。"
+      }
+    ]
+  },
+  "precise_guard": {
+    "kind": "passive",
+    "cn": "精准格挡",
+    "unlock": 2,
+    "max": 3,
+    "levels": [
+      {
+        "energy": 1,
+        "block": 0,
+        "description": "若你的 Block 恰好等于敌人本次伤害并完全挡住：恢复 {energy} 能量{retainedBlock}。"
+      },
+      {
+        "energy": 1,
+        "block": 1,
+        "description": "若你的 Block 恰好等于敌人本次伤害并完全挡住：恢复 {energy} 能量{retainedBlock}。"
+      },
+      {
+        "energy": 2,
+        "block": 1,
+        "description": "若你的 Block 恰好等于敌人本次伤害并完全挡住：恢复 {energy} 能量{retainedBlock}。"
+      }
+    ],
+    "blockDescription": "，并保留 {block} Block"
+  },
+  "parity_edge": {
+    "kind": "passive",
+    "cn": "奇数锋刃",
+    "unlock": 3,
+    "max": 4,
+    "levels": [
+      {
+        "interval": 2,
+        "remainder": 1,
+        "bonus": 1,
+        "description": "战斗回合除以 {interval} 余 {remainder} 时，你造成的伤害 +{bonus}。"
+      },
+      {
+        "interval": 2,
+        "remainder": 1,
+        "bonus": 2,
+        "description": "战斗回合除以 {interval} 余 {remainder} 时，你造成的伤害 +{bonus}。"
+      },
+      {
+        "interval": 2,
+        "remainder": 1,
+        "bonus": 3,
+        "description": "战斗回合除以 {interval} 余 {remainder} 时，你造成的伤害 +{bonus}。"
+      },
+      {
+        "interval": 2,
+        "remainder": 1,
+        "bonus": 4,
+        "description": "战斗回合除以 {interval} 余 {remainder} 时，你造成的伤害 +{bonus}。"
+      }
+    ]
+  },
+  "divisible_edge": {
+    "kind": "passive",
+    "cn": "三分律",
+    "unlock": 4,
+    "max": 4,
+    "levels": [
+      {
+        "divisor": 3,
+        "bonus": 1,
+        "description": "造成伤害前，若敌人当前 HP 能被 {divisor} 整除，伤害 +{bonus}。"
+      },
+      {
+        "divisor": 3,
+        "bonus": 2,
+        "description": "造成伤害前，若敌人当前 HP 能被 {divisor} 整除，伤害 +{bonus}。"
+      },
+      {
+        "divisor": 3,
+        "bonus": 3,
+        "description": "造成伤害前，若敌人当前 HP 能被 {divisor} 整除，伤害 +{bonus}。"
+      },
+      {
+        "divisor": 3,
+        "bonus": 4,
+        "description": "造成伤害前，若敌人当前 HP 能被 {divisor} 整除，伤害 +{bonus}。"
+      }
+    ]
+  },
+  "exact_finish": {
+    "kind": "passive",
+    "cn": "精确终结",
+    "unlock": 5,
+    "max": 3,
+    "levels": [
+      {
+        "xpRate": 0.05,
+        "description": "若最后一击伤害恰好等于敌人剩余 HP，额外获得 {xpPercent}% 战斗经验。"
+      },
+      {
+        "xpRate": 0.1,
+        "description": "若最后一击伤害恰好等于敌人剩余 HP，额外获得 {xpPercent}% 战斗经验。"
+      },
+      {
+        "xpRate": 0.15000000000000002,
+        "description": "若最后一击伤害恰好等于敌人剩余 HP，额外获得 {xpPercent}% 战斗经验。"
+      }
+    ]
+  }
+}

@@ -1,0 +1,645 @@
+{
+  "world": {
+    "format": "graymarch-save",
+    "schemaVersion": 1,
+    "state": {
+      "x": 0,
+      "y": 0,
+      "visited": [
+        "0,0"
+      ],
+      "discovered": [
+        "0,-2",
+        "-1,-1",
+        "0,-1",
+        "1,-1",
+        "-2,0",
+        "-1,0",
+        "0,0",
+        "1,0",
+        "2,0",
+        "-1,1",
+        "0,1",
+        "1,1",
+        "0,2"
+      ],
+      "spent": [],
+      "harvested": [],
+      "eventsSeen": [],
+      "cleared": [],
+      "wins": 0,
+      "level": 1,
+      "xp": 0,
+      "sigils": 0,
+      "victory": false,
+      "pendingRewards": 0,
+      "worldTurn": 0,
+      "hunger": 80,
+      "maxHunger": 100,
+      "inventory": {
+        "berries": 1,
+        "mushroom": 0,
+        "roots": 1,
+        "meat": 0,
+        "herb": 0,
+        "seedcake": 0,
+        "nuts": 0,
+        "bogfruit": 0,
+        "emberberry": 0
+      },
+      "buffs": [],
+      "sound": true,
+      "inBattle": false,
+      "training": false,
+      "battleOrigin": null,
+      "lastReport": null,
+      "classId": "wanderer",
+      "meta": {
+        "bossWins": 0,
+        "bestGrade": "C",
+        "harvests": 0,
+        "unlocks": []
+      },
+      "player": {
+        "hp": 18,
+        "maxHp": 18,
+        "attack": 4,
+        "energy": 2,
+        "maxEnergy": 3,
+        "block": 0,
+        "skills": {},
+        "passives": {},
+        "equipment": {}
+      },
+      "battle": null,
+      "sessionId": "2f8e751d-7d08-4521-88ea-58e95684fc64",
+      "runId": "legacy",
+      "epoch": 2,
+      "revision": 1,
+      "decisionTurn": 0,
+      "sequence": 0,
+      "rng": 12345,
+      "pendingDecision": null
+    }
+  },
+  "battle": {
+    "format": "graymarch-save",
+    "schemaVersion": 1,
+    "state": {
+      "x": 0,
+      "y": 0,
+      "visited": [
+        "0,0"
+      ],
+      "discovered": [
+        "0,-2",
+        "-1,-1",
+        "0,-1",
+        "1,-1",
+        "-2,0",
+        "-1,0",
+        "0,0",
+        "1,0",
+        "2,0",
+        "-1,1",
+        "0,1",
+        "1,1",
+        "0,2"
+      ],
+      "spent": [],
+      "harvested": [],
+      "eventsSeen": [],
+      "cleared": [],
+      "wins": 0,
+      "level": 1,
+      "xp": 0,
+      "sigils": 0,
+      "victory": false,
+      "pendingRewards": 0,
+      "worldTurn": 0,
+      "hunger": 80,
+      "maxHunger": 100,
+      "inventory": {
+        "berries": 1,
+        "mushroom": 0,
+        "roots": 1,
+        "meat": 0,
+        "herb": 0,
+        "seedcake": 0,
+        "nuts": 0,
+        "bogfruit": 0,
+        "emberberry": 0
+      },
+      "buffs": [],
+      "sound": true,
+      "inBattle": true,
+      "training": true,
+      "battleOrigin": {
+        "player": {
+          "hp": 18,
+          "maxHp": 18,
+          "attack": 4,
+          "energy": 2,
+          "maxEnergy": 3,
+          "block": 0,
+          "skills": {},
+          "passives": {},
+          "equipment": {}
+        },
+        "hunger": 80,
+        "maxHunger": 100,
+        "buffs": [],
+        "worldTurn": 0
+      },
+      "lastReport": null,
+      "classId": "wanderer",
+      "meta": {
+        "bossWins": 0,
+        "bestGrade": "C",
+        "harvests": 0,
+        "unlocks": []
+      },
+      "player": {
+        "hp": 18,
+        "maxHp": 18,
+        "attack": 4,
+        "energy": 2,
+        "maxEnergy": 3,
+        "block": 0,
+        "skills": {},
+        "passives": {},
+        "equipment": {},
+        "charge": 0,
+        "chargePierce": false,
+        "damageCount": 0,
+        "poison": null,
+        "riposte": null,
+        "thorns": null,
+        "prevActionId": null
+      },
+      "battle": {
+        "id": "legacy:battle:1",
+        "batchId": "legacy:battle:1:batch:1",
+        "batchCounter": 1,
+        "enemy": {
+          "cn": "墓园剑骨",
+          "en": "Grave Skeleton",
+          "art": "skeleton",
+          "tags": [
+            "亡灵",
+            "轻甲",
+            "防御型"
+          ],
+          "summary": "生命过半后频繁格挡，每第四回合使用重劈。",
+          "hp": 9,
+          "atk": 2,
+          "armor": 1,
+          "scene": "FALLEN CHAPEL",
+          "pattern": [
+            "每 4 回合：重击 4",
+            "HP ≤ 50% 且每 3 回合：格挡 3",
+            "其余：劈砍 2"
+          ],
+          "id": "skeleton",
+          "maxHp": 9,
+          "baseArmor": 1,
+          "block": 0,
+          "exposed": 0,
+          "xp": 0
+        },
+        "turn": 1,
+        "type": "E",
+        "plan": [
+          null,
+          null,
+          null
+        ],
+        "lockedIntents": [
+          {
+            "id": "attack",
+            "name": "劈砍",
+            "dmg": 2,
+            "hidden": false
+          },
+          {
+            "id": "attack",
+            "name": "劈砍",
+            "dmg": 2,
+            "hidden": false
+          },
+          {
+            "id": "attack",
+            "name": "劈砍",
+            "dmg": 2,
+            "hidden": false
+          }
+        ],
+        "carryIntents": [],
+        "sealedSlot": null,
+        "hiddenIntentIndex": null,
+        "resolving": false,
+        "lastBossPhase": 0,
+        "stats": {
+          "damageDealt": 0,
+          "damageTaken": 0,
+          "blocked": 0,
+          "exactBlocks": 0,
+          "rounds": 0,
+          "exactKill": false
+        }
+      },
+      "sessionId": "01c4a3d2-9547-4494-a716-36ab4da46cc5",
+      "runId": "legacy",
+      "epoch": 2,
+      "revision": 2,
+      "decisionTurn": 0,
+      "sequence": 0,
+      "rng": 12345,
+      "pendingDecision": null,
+      "combatCounter": 1,
+      "screen": "battle"
+    }
+  },
+  "event": {
+    "format": "graymarch-save",
+    "schemaVersion": 1,
+    "state": {
+      "x": 0,
+      "y": 0,
+      "visited": [
+        "0,0"
+      ],
+      "discovered": [
+        "0,-2",
+        "-1,-1",
+        "0,-1",
+        "1,-1",
+        "-2,0",
+        "-1,0",
+        "0,0",
+        "1,0",
+        "2,0",
+        "-1,1",
+        "0,1",
+        "1,1",
+        "0,2"
+      ],
+      "spent": [],
+      "harvested": [],
+      "eventsSeen": [
+        "11,13"
+      ],
+      "cleared": [],
+      "wins": 0,
+      "level": 1,
+      "xp": 0,
+      "sigils": 0,
+      "victory": false,
+      "pendingRewards": 0,
+      "worldTurn": 0,
+      "hunger": 80,
+      "maxHunger": 100,
+      "inventory": {
+        "berries": 1,
+        "mushroom": 0,
+        "roots": 1,
+        "meat": 0,
+        "herb": 0,
+        "seedcake": 0,
+        "nuts": 0,
+        "bogfruit": 0,
+        "emberberry": 0
+      },
+      "buffs": [],
+      "sound": true,
+      "inBattle": false,
+      "training": false,
+      "battleOrigin": null,
+      "lastReport": null,
+      "classId": "wanderer",
+      "meta": {
+        "bossWins": 0,
+        "bestGrade": "C",
+        "harvests": 0,
+        "unlocks": []
+      },
+      "player": {
+        "hp": 18,
+        "maxHp": 18,
+        "attack": 4,
+        "energy": 2,
+        "maxEnergy": 3,
+        "block": 0,
+        "skills": {},
+        "passives": {},
+        "equipment": {}
+      },
+      "battle": null,
+      "sessionId": "49d2d89e-90f0-4d83-995d-c6cf351e2ef0",
+      "runId": "legacy",
+      "epoch": 2,
+      "revision": 1,
+      "decisionTurn": 0,
+      "sequence": 1,
+      "rng": 12345,
+      "pendingDecision": {
+        "decisionId": "decision-1",
+        "kind": "event",
+        "title": "变质的宴席",
+        "text": "废弃营地里食物闻起来尚可，但显然放得太久。",
+        "options": [
+          {
+            "optionId": "0",
+            "available": true,
+            "label": "冒险吃下"
+          },
+          {
+            "optionId": "1",
+            "available": true,
+            "label": "离开"
+          }
+        ],
+        "cancelable": false,
+        "source": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "camp": {
+    "format": "graymarch-save",
+    "schemaVersion": 1,
+    "state": {
+      "x": 0,
+      "y": 0,
+      "visited": [
+        "0,0"
+      ],
+      "discovered": [
+        "0,-2",
+        "-1,-1",
+        "0,-1",
+        "1,-1",
+        "-2,0",
+        "-1,0",
+        "0,0",
+        "1,0",
+        "2,0",
+        "-1,1",
+        "0,1",
+        "1,1",
+        "0,2"
+      ],
+      "spent": [],
+      "harvested": [],
+      "eventsSeen": [],
+      "cleared": [],
+      "wins": 0,
+      "level": 1,
+      "xp": 0,
+      "sigils": 0,
+      "victory": false,
+      "pendingRewards": 0,
+      "worldTurn": 0,
+      "hunger": 80,
+      "maxHunger": 100,
+      "inventory": {
+        "berries": 1,
+        "mushroom": 0,
+        "roots": 1,
+        "meat": 0,
+        "herb": 0,
+        "seedcake": 0,
+        "nuts": 0,
+        "bogfruit": 0,
+        "emberberry": 0
+      },
+      "buffs": [],
+      "sound": true,
+      "inBattle": false,
+      "training": false,
+      "battleOrigin": null,
+      "lastReport": null,
+      "classId": "wanderer",
+      "meta": {
+        "bossWins": 0,
+        "bestGrade": "C",
+        "harvests": 0,
+        "unlocks": []
+      },
+      "player": {
+        "hp": 18,
+        "maxHp": 18,
+        "attack": 4,
+        "energy": 2,
+        "maxEnergy": 3,
+        "block": 0,
+        "skills": {},
+        "passives": {},
+        "equipment": {}
+      },
+      "battle": null,
+      "sessionId": "16b5e24e-5279-4dd3-955b-d0b86d627e04",
+      "runId": "legacy",
+      "epoch": 2,
+      "revision": 1,
+      "decisionTurn": 0,
+      "sequence": 1,
+      "rng": 12345,
+      "pendingDecision": {
+        "decisionId": "decision-1",
+        "kind": "camp",
+        "title": "遗火营地",
+        "text": "每处营火只能进行一次休整或烹饪。",
+        "options": [
+          {
+            "optionId": "0",
+            "available": true,
+            "label": "休息 · +4 HP / +8 饥饿",
+            "items": {},
+            "hp": 4,
+            "hunger": 8
+          },
+          {
+            "optionId": "1",
+            "available": false,
+            "label": "炙烤野味 · 熏野味×1",
+            "items": {
+              "meat": 1
+            },
+            "hp": 6,
+            "hunger": 32,
+            "buff": {
+              "id": "camp_sated",
+              "name": "饱足",
+              "turns": 14,
+              "hungerCost": -1,
+              "desc": "移动与采集饥饿消耗 -1。"
+            }
+          },
+          {
+            "optionId": "2",
+            "available": false,
+            "label": "根茎药汤 · 甜根×1 + 药草×1",
+            "items": {
+              "roots": 1,
+              "herb": 1
+            },
+            "hp": 8,
+            "hunger": 24
+          },
+          {
+            "optionId": "3",
+            "available": false,
+            "label": "烤灰帽菇 · 灰帽菇×1",
+            "items": {
+              "mushroom": 1
+            },
+            "hp": 0,
+            "hunger": 20,
+            "buff": {
+              "id": "camp_warm",
+              "name": "暖胃",
+              "turns": 12,
+              "guard": 1,
+              "desc": "格挡动作 +1。"
+            }
+          },
+          {
+            "optionId": "4",
+            "available": false,
+            "label": "浆果热饮 · 黑莓×1 + 药草×1",
+            "items": {
+              "berries": 1,
+              "herb": 1
+            },
+            "hp": 3,
+            "hunger": 12,
+            "buff": {
+              "id": "camp_focus",
+              "name": "热饮振奋",
+              "turns": 10,
+              "attack": 1,
+              "desc": "攻击 +1。"
+            }
+          }
+        ],
+        "cancelable": true
+      }
+    }
+  },
+  "reward": {
+    "format": "graymarch-save",
+    "schemaVersion": 1,
+    "state": {
+      "x": 0,
+      "y": 0,
+      "visited": [
+        "0,0"
+      ],
+      "discovered": [
+        "0,-2",
+        "-1,-1",
+        "0,-1",
+        "1,-1",
+        "-2,0",
+        "-1,0",
+        "0,0",
+        "1,0",
+        "2,0",
+        "-1,1",
+        "0,1",
+        "1,1",
+        "0,2"
+      ],
+      "spent": [],
+      "harvested": [],
+      "eventsSeen": [],
+      "cleared": [],
+      "wins": 0,
+      "level": 1,
+      "xp": 0,
+      "sigils": 0,
+      "victory": false,
+      "pendingRewards": 1,
+      "worldTurn": 0,
+      "hunger": 80,
+      "maxHunger": 100,
+      "inventory": {
+        "berries": 1,
+        "mushroom": 0,
+        "roots": 1,
+        "meat": 0,
+        "herb": 0,
+        "seedcake": 0,
+        "nuts": 0,
+        "bogfruit": 0,
+        "emberberry": 0
+      },
+      "buffs": [],
+      "sound": true,
+      "inBattle": false,
+      "training": false,
+      "battleOrigin": null,
+      "lastReport": null,
+      "classId": "wanderer",
+      "meta": {
+        "bossWins": 0,
+        "bestGrade": "C",
+        "harvests": 0,
+        "unlocks": []
+      },
+      "player": {
+        "hp": 18,
+        "maxHp": 18,
+        "attack": 4,
+        "energy": 2,
+        "maxEnergy": 3,
+        "block": 0,
+        "skills": {},
+        "passives": {},
+        "equipment": {}
+      },
+      "battle": null,
+      "sessionId": "9b744d49-048f-4827-87a2-8f5c5d30277c",
+      "runId": "legacy",
+      "epoch": 2,
+      "revision": 1,
+      "decisionTurn": 0,
+      "sequence": 1,
+      "rng": 2816511904,
+      "pendingDecision": {
+        "decisionId": "decision-1",
+        "kind": "reward",
+        "title": "升级奖励",
+        "text": "选择一项构筑强化",
+        "options": [
+          {
+            "optionId": "iron_sword",
+            "available": true,
+            "label": "铁脊长剑",
+            "targetLevel": 1,
+            "description": "攻击 +1。"
+          },
+          {
+            "optionId": "guard_stance",
+            "available": true,
+            "label": "守势",
+            "targetLevel": 1,
+            "description": "获得 5 格挡。"
+          },
+          {
+            "optionId": "third_strike",
+            "available": true,
+            "label": "第三击",
+            "targetLevel": 1,
+            "description": "每第 3 次造成伤害时，额外 +2。"
+          }
+        ],
+        "cancelable": false,
+        "remainingRounds": 1
+      }
+    }
+  }
+}

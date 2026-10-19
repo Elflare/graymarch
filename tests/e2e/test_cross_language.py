@@ -57,8 +57,8 @@ class CrossLanguage(unittest.TestCase):
                     r=client.post('/api/v1/actions',json=cmd,headers=auth);self.assertEqual(r.status_code,200,r.text)
                     body=r.json();self.assertEqual(body['status'],'completed',body);frame=body['observation'];return cmd,body
                 self.assertEqual(frame['phase'],'world.ready')
-                # Explicit owner enablement precedes API gameplay.
-                control('agent')
+                # Default Agent control permits gameplay as soon as the page is ready.
+                self.assertEqual(get('status')['controlMode'], 'agent')
                 n=next(n for n in frame['world']['neighbors'] if n['legal'])
                 cmd,body=action('world.move',{'direction':n['direction']})
                 again=client.post('/api/v1/actions',json=cmd,headers=auth);self.assertEqual(again.json(),body)
@@ -78,6 +78,7 @@ class CrossLanguage(unittest.TestCase):
                 saved=client.post('/api/v1/saves/manual',headers=owner);self.assertEqual(saved.status_code,200,saved.text)
                 self.assertTrue((Path(folder)/'saves/manual.json').exists())
                 loaded=client.post('/api/v1/saves/manual/load',headers=owner);self.assertEqual(loaded.status_code,200,loaded.text)
+                self.assertEqual(loaded.json()['controlMode'], 'agent')
                 self.assertGreater(loaded.json()['epoch'],frame['epoch'])
                 self.assertEqual(client.get('/api/v1/status').status_code,401)
                 # Close the peer via portal before tearing down TestClient.

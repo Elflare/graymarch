@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createGame} from '../../web/src/core/engine.js';
+import {resources,createHumanGame as createGame,loadHuman} from './helpers/resources.mjs';
 import {startMetaAutosave} from '../../web/src/persistence/meta.js';
 
 const empty = () => ({bossWins: 0, bestGrade: 'C', harvests: 0, unlocks: []});
@@ -16,17 +16,17 @@ test('startup restores unlocks; old journeys and new runs preserve permanent pro
   const restored = game.exportMeta();
   assert(restored.unlocks.includes('class_sentinel'));
   assert(restored.unlocks.includes('class_hunter'));
-  game.importSave(old);
+  loadHuman(game,old);
   assert.deepEqual(game.exportMeta(), restored);
   game.humanAct('host.newRun', {classId: 'arcanist'});
   assert.equal(game.exportSave().state.classId, 'arcanist');
   assert.deepEqual(game.exportMeta(), restored);
-  game.importSave(old);
+  loadHuman(game,old);
   assert.deepEqual(game.exportMeta(), restored);
   const bad = structuredClone(old);
   bad.state.meta.harvests = -1;
   const before = game.exportSave();
-  assert.throws(() => game.importSave(bad), {code: 'INVALID_META'});
+  assert.throws(() => loadHuman(game,bad), {code: 'INVALID_META'});
   assert.deepEqual(game.exportSave(), before);
 });
 
@@ -50,7 +50,7 @@ test('real boss victory saves immediately; training, preview and unrelated actio
     save.state.battleOrigin = null;
     save.state.battle.type = 'B';
     save.state.battle.enemy.hp = 1;
-    game.importSave(save);
+    loadHuman(game,save);
     game.humanAct('battle.commit', payload(game, plan));
     await sync.flush();
     assert.equal(writes.at(-1).bossWins, 1);
@@ -71,10 +71,10 @@ test('autosave serializes changes arriving while a write is pending', async () =
     await sync.flush();
     const save = game.exportSave();
     save.state.meta.harvests = 9;
-    game.importSave(save);
+    loadHuman(game,save);
     assert.equal(writes.length, 1);
     save.state.meta.harvests = 10;
-    game.importSave(save);
+    loadHuman(game,save);
     assert.equal(writes.length, 1);
     releases.shift()({});
     await Promise.resolve();
@@ -103,7 +103,7 @@ test('failed writes retry and report success only after persistence succeeds', a
   try {
     const save = game.exportSave();
     save.state.meta.harvests = 10;
-    game.importSave(save);
+    loadHuman(game,save);
     await saved;
     assert.equal(attempts.length, 2);
     assert.deepEqual(attempts[0], attempts[1]);

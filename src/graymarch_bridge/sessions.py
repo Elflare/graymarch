@@ -21,7 +21,7 @@ class Session:
         self.socket = None
         self.identity = {}
         self.ready = False
-        self.mode = "human"
+        self.mode = "agent"
         self.pending = {}
         self.receipts = {}
         self.active_command = None
@@ -49,7 +49,7 @@ class Session:
         self.socket = socket
         self.ready = False
         self.identity = {}
-        self.mode = "human"
+        self.mode = "agent"
 
     def disconnected(self, socket):
         if self.socket is not socket:

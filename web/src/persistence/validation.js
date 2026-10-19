@@ -1,5 +1,19 @@
 import {SET_FIELDS} from '../core/state.js';
- export function validateSave(save,R){if(save?.format!=='graymarch-save'||save.schemaVersion!==1||!save.state)throw R.error('INVALID_SAVE','仅支持新版完整存档');let s=save.state;let walk=(v,d=0)=>{if(d>30)throw R.error('INVALID_SAVE','存档层级过深');if(typeof v==='number'&&!Number.isFinite(v))throw R.error('INVALID_SAVE','非有限数值');if(typeof v==='string'&&(v.length>20000||/[<>]/.test(v)))throw R.error('INVALID_SAVE','无效文本');if(v&&typeof v==='object')for(let[k,x]of Object.entries(v)){if(['__proto__','constructor','prototype'].includes(k))throw R.error('INVALID_SAVE','危险字段');walk(x,d+1);}};walk(s);
+// Effects are private, serialized decision snapshots. Validate them once on
+// import; selecting a decision consumes this checked descriptor directly.
+function validateEffect(effect,R){
+ const invalid=()=>{throw R.error('INVALID_SAVE','事件或营火效果无效');};
+ if(!effect||typeof effect!=='object'||Array.isArray(effect))invalid();
+ for(const key of ['hp','hunger','xp'])if(effect[key]!==undefined&&!Number.isFinite(effect[key]))invalid();
+ if(effect.hunger!==undefined&&!Number.isSafeInteger(effect.hunger))invalid();
+ if(effect.xp!==undefined&&(!Number.isSafeInteger(effect.xp)||effect.xp<0))invalid();
+ if(effect.items){if(typeof effect.items!=='object'||Array.isArray(effect.items))invalid();for(const[id,n]of Object.entries(effect.items))if(!R.foodDefs[id]||!Number.isSafeInteger(n)||n<0)invalid();}
+ if(effect.buff){const b=effect.buff;if(typeof b.id!=='string'||typeof b.name!=='string'||typeof b.desc!=='string'||!Number.isSafeInteger(b.turns)||b.turns<1)invalid();for(const key of ['attack','guard','hungerCost'])if(b[key]!==undefined&&!Number.isFinite(b[key]))invalid();}
+ if(effect.battle!==undefined&&!['E','X','B'].includes(effect.battle))invalid();
+ if(effect.message!==undefined&&typeof effect.message!=='string')invalid();
+ if(effect.extra)validateEffect(effect.extra,R);
+}
+ export function validateSave(save,R){if(save?.format!=='graymarch-save'||save.schemaVersion!==1||!save.state)throw R.error('INVALID_SAVE','仅支持新版完整存档');let s=save.state;let walk=(v,d=0)=>{if(d>30)throw R.error('INVALID_SAVE','存档层级过深');if(typeof v==='number'&&!Number.isFinite(v))throw R.error('INVALID_SAVE','非有限数值');if(typeof v==='string'&&(v.length>20000||v.includes('<')))throw R.error('INVALID_SAVE','无效文本');if(v&&typeof v==='object')for(let[k,x]of Object.entries(v)){if(['__proto__','constructor','prototype'].includes(k))throw R.error('INVALID_SAVE','危险字段');walk(x,d+1);}};walk(s);
  for(let k of ['x','y','epoch','revision','decisionTurn','sequence','rng','worldTurn','level','xp','sigils','hunger','maxHunger','pendingRewards'])if(!Number.isSafeInteger(s[k])||Math.abs(s[k])>(k==='rng'?4294967295:1e9)||(k!=='x'&&k!=='y'&&s[k]<0))throw R.error('INVALID_SAVE',`无效字段 ${k}`);
  for(let k of SET_FIELDS)if(!Array.isArray(s[k])||s[k].length>100000||s[k].some(v=>typeof v!=='string'||!/^\-?\d+,\-?\d+$/.test(v)))throw R.error('INVALID_SAVE',`无效地图 ${k}`);
  if(!R.classDefs[s.classId]||!s.player||!s.meta||!Array.isArray(s.meta.unlocks)||!Array.isArray(s.buffs)||!s.inventory)throw R.error('INVALID_SAVE','缺少角色数据');
@@ -13,5 +27,8 @@ import {SET_FIELDS} from '../core/state.js';
  for(let b of s.buffs)if(!b||typeof b.id!=='string'||!Number.isInteger(b.turns)||b.turns<1)throw R.error('INVALID_SAVE','状态效果无效');
  if(s.pendingDecision&&(!['camp','event','reward','victory'].includes(s.pendingDecision.kind)||!Array.isArray(s.pendingDecision.options)||!s.pendingDecision.decisionId))throw R.error('INVALID_SAVE','选择数据无效');
  if(s.pendingDecision){let d=s.pendingDecision;if(!d.options.length||d.options.length>10||d.options.some(o=>!o||typeof o.optionId!=='string'||typeof o.label!=='string'||typeof o.available!=='boolean'))throw R.error('INVALID_SAVE','选择选项无效');if(new Set(d.options.map(o=>o.optionId)).size!==d.options.length)throw R.error('INVALID_SAVE','重复选项');if(d.kind==='reward'){for(let o of d.options){let def=R.rewardPool[o.optionId];if(!def||!Number.isInteger(o.targetLevel)||o.targetLevel<1||o.targetLevel>def.max)throw R.error('INVALID_SAVE','奖励等级无效');}if(s.pendingRewards<1)throw R.error('INVALID_SAVE','奖励轮次无效');}if(d.kind==='event'&&(!Number.isInteger(d.source?.x)||!Number.isInteger(d.source?.y)))throw R.error('INVALID_SAVE','事件来源无效');}
-
+ if(s.pendingDecision)for(const o of s.pendingDecision.options){
+  if(s.pendingDecision.kind==='event'&&o.effect!==undefined)validateEffect(o.effect,R);
+  if(s.pendingDecision.kind==='camp'){validateEffect(o,R);if(!o.items||!Number.isFinite(o.hp)||!Number.isFinite(o.hunger)||o.hp<0||o.hunger<0)throw R.error('INVALID_SAVE','营火配方无效');if(o.available&&Object.entries(o.items).some(([id,n])=>s.inventory[id]<n))throw R.error('INVALID_SAVE','营火资源不足');}
+ }
  }

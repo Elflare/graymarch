@@ -1,0 +1,622 @@
+{
+  "seed": 102390807,
+  "finalTower": {
+    "x": 35,
+    "y": -28
+  },
+  "biomeSize": 18,
+  "redRadius": 13,
+  "roadSpacing": 7,
+  "revealRadius": 2,
+  "observationRadius": 3,
+  "leadRadius": 44,
+  "minMoveCost": 1,
+  "minHarvestCost": 2,
+  "maxFind": 0.78,
+  "minAmbush": 0.04,
+  "minDebuff": 0.03,
+  "starvationDamage": 1,
+  "collapse": {
+    "hpRatio": 0.4,
+    "minHunger": 20,
+    "hungerRatio": 0.25
+  },
+  "village": {
+    "hp": 5,
+    "hunger": 20,
+    "items": {
+      "roots": 1
+    }
+  },
+  "ruins": {
+    "xpBase": 5,
+    "depthDivisor": 12
+  },
+  "biomeThresholds": [
+    [
+      0.25,
+      "grass"
+    ],
+    [
+      0.48,
+      "forest"
+    ],
+    [
+      0.66,
+      "mire"
+    ],
+    [
+      0.84,
+      "highland"
+    ],
+    [
+      1,
+      "ashen"
+    ]
+  ],
+  "tileInfo": {
+    ".": {
+      "cls": "plain",
+      "icon": "·",
+      "name": "灰境荒原",
+      "desc": "贫瘠开阔，能挖到少量根茎。",
+      "move": 2,
+      "enemyRate": "约 13%",
+      "gather": "甜根 / 坚果 / 药草"
+    },
+    "G": {
+      "cls": "grass",
+      "icon": "❧",
+      "name": "风草原",
+      "desc": "草籽与药草丰富，适合补给。",
+      "move": 1,
+      "enemyRate": "约 10%",
+      "gather": "浆果 / 草籽饼 / 甜根 / 药草"
+    },
+    "T": {
+      "cls": "forest",
+      "icon": "♣",
+      "name": "黑木林",
+      "desc": "食物丰富，但穿行更耗体力。",
+      "move": 3,
+      "enemyRate": "约 18%",
+      "gather": "浆果 / 蘑菇 / 坚果 / 野味"
+    },
+    "S": {
+      "cls": "swamp",
+      "icon": "≈",
+      "name": "灰苔沼泽",
+      "desc": "泥泞而危险，能找到蘑菇和药草。",
+      "move": 4,
+      "enemyRate": "约 20%",
+      "gather": "蘑菇 / 沼果 / 药草 / 根茎"
+    },
+    "=": {
+      "cls": "road",
+      "icon": "═",
+      "name": "旧王道",
+      "desc": "移动最省食物，沿路也最安全。",
+      "move": 1,
+      "enemyRate": "约 6%",
+      "gather": "无"
+    },
+    "^": {
+      "cls": "mountain",
+      "icon": "▲",
+      "name": "裂脊山",
+      "desc": "陡峭岩壁，当前无法直接翻越。",
+      "move": null,
+      "enemyRate": "—",
+      "gather": "无"
+    },
+    "~": {
+      "cls": "water",
+      "icon": "≈",
+      "name": "沉水河",
+      "desc": "深水阻路，需绕行。",
+      "move": null,
+      "enemyRate": "—",
+      "gather": "无"
+    },
+    "V": {
+      "cls": "village",
+      "icon": "⌂",
+      "name": "石炉聚落",
+      "desc": "首次抵达可休整并获得少量补给。",
+      "move": 1,
+      "enemyRate": "0%",
+      "gather": "无"
+    },
+    "R": {
+      "cls": "ruins",
+      "icon": "†",
+      "name": "旧礼拜堂遗迹",
+      "desc": "首次探索可恢复符能并获得经验。",
+      "move": 2,
+      "enemyRate": "低",
+      "gather": "无"
+    },
+    "C": {
+      "cls": "camp",
+      "icon": "♨",
+      "name": "遗火营地",
+      "desc": "残存火堆适合休息与加工食材；每处营火只能使用一次。",
+      "move": 1,
+      "enemyRate": "0%",
+      "gather": "可烹饪"
+    },
+    "Q": {
+      "cls": "event",
+      "icon": "?",
+      "name": "未知事件",
+      "desc": "灰境中的偶遇，大多会带来帮助。",
+      "move": 2,
+      "enemyRate": "事件决定",
+      "gather": "无"
+    },
+    "E": {
+      "cls": "enemy",
+      "icon": "⚔",
+      "name": "敌对踪迹",
+      "desc": "普通敌人盘踞于此。",
+      "move": 2,
+      "enemyRate": "100%",
+      "gather": "击败后获得经验"
+    },
+    "X": {
+      "cls": "elite",
+      "icon": "✦",
+      "name": "精英踪迹",
+      "desc": "危险敌人。击败不同精英可夺取赤塔印记。",
+      "move": 3,
+      "enemyRate": "100%",
+      "gather": "无"
+    },
+    "B": {
+      "cls": "finalboss",
+      "icon": "♜",
+      "name": "赤塔",
+      "desc": "灰境旅途的终点。需要 3 枚塔印解除封锁。",
+      "move": 2,
+      "enemyRate": "最终 Boss",
+      "gather": "无"
+    }
+  },
+  "biomes": {
+    "grass": {
+      "id": "grass",
+      "name": "风歌平原",
+      "desc": "开阔草海与旧道交错，补给容易，危险较低。",
+      "enemyBias": -0.02
+    },
+    "forest": {
+      "id": "forest",
+      "name": "黑木密林",
+      "desc": "林地资源丰富，但野兽和伏击者更多。",
+      "enemyBias": 0.025
+    },
+    "mire": {
+      "id": "mire",
+      "name": "灰苔湿地",
+      "desc": "沼泽与水道密布，采集收益高而风险明显。",
+      "enemyBias": 0.04
+    },
+    "highland": {
+      "id": "highland",
+      "name": "裂脊高地",
+      "desc": "山岩与荒地占据大半区域，重甲敌人常见。",
+      "enemyBias": 0.02
+    },
+    "ashen": {
+      "id": "ashen",
+      "name": "灰烬边境",
+      "desc": "贫瘠、诡异而危险，亡灵与秘法敌人更常出现。",
+      "enemyBias": 0.045
+    },
+    "red": {
+      "id": "red",
+      "name": "赤塔疆域",
+      "desc": "赤塔周边的腐化土地，空气里带着铁锈与余烬。",
+      "enemyBias": 0.06
+    }
+  },
+  "enemyPools": {
+    "grass": [
+      "wolf",
+      "boar",
+      "bandit",
+      "knight",
+      "ogre"
+    ],
+    "forest": [
+      "wolf",
+      "boar",
+      "spider",
+      "bandit",
+      "wraith"
+    ],
+    "mire": [
+      "spider",
+      "wraith",
+      "golem",
+      "ogre",
+      "skeleton"
+    ],
+    "highland": [
+      "boar",
+      "bandit",
+      "knight",
+      "golem",
+      "ogre"
+    ],
+    "ashen": [
+      "skeleton",
+      "wraith",
+      "golem",
+      "knight",
+      "ogre"
+    ],
+    "red": [
+      "wraith",
+      "knight",
+      "golem",
+      "ogre",
+      "skeleton"
+    ]
+  },
+  "guardians": [
+    "iron_warden",
+    "rot_priest",
+    "rift_reaver"
+  ],
+  "boss": "lord",
+  "tierDistance": [
+    [
+      14,
+      1
+    ],
+    [
+      30,
+      2
+    ],
+    [
+      50,
+      3
+    ]
+  ],
+  "maxTier": 4,
+  "fallbackEnemies": [
+    "wolf",
+    "skeleton"
+  ],
+  "distanceScale": {
+    "start": 22,
+    "divisor": 38,
+    "max": 3,
+    "hp": 2,
+    "attackDivisor": 2
+  },
+  "enemyXp": {
+    "base": 5,
+    "hpDivisor": 3,
+    "scale": 1.5,
+    "eliteBonus": 2,
+    "eliteMultiplier": 1.55,
+    "bossMultiplier": 3
+  },
+  "sites": {
+    "campMinDistance": 5,
+    "campChance": 0.018,
+    "eliteMinDistance": 8,
+    "eliteChance": 0.032,
+    "eliteBias": 0.15,
+    "village": 0.067,
+    "ruins": 0.104,
+    "event": 0.145,
+    "enemy": 0.255
+  },
+  "terrain": {
+    "grass": [
+      [
+        0.08,
+        "T"
+      ],
+      [
+        0.13,
+        "S"
+      ],
+      [
+        0.19,
+        "^"
+      ],
+      [
+        0.23,
+        "~"
+      ],
+      [
+        0.66,
+        "G"
+      ],
+      [
+        1,
+        "."
+      ]
+    ],
+    "forest": [
+      [
+        0.52,
+        "T"
+      ],
+      [
+        0.66,
+        "G"
+      ],
+      [
+        0.75,
+        "S"
+      ],
+      [
+        0.82,
+        "^"
+      ],
+      [
+        0.87,
+        "~"
+      ],
+      [
+        1,
+        "."
+      ]
+    ],
+    "mire": [
+      [
+        0.43,
+        "S"
+      ],
+      [
+        0.58,
+        "T"
+      ],
+      [
+        0.69,
+        "~"
+      ],
+      [
+        0.78,
+        "G"
+      ],
+      [
+        0.83,
+        "^"
+      ],
+      [
+        1,
+        "."
+      ]
+    ],
+    "highland": [
+      [
+        0.3,
+        "^"
+      ],
+      [
+        0.43,
+        "T"
+      ],
+      [
+        0.58,
+        "G"
+      ],
+      [
+        0.64,
+        "~"
+      ],
+      [
+        0.69,
+        "S"
+      ],
+      [
+        1,
+        "."
+      ]
+    ],
+    "red": [
+      [
+        0.25,
+        "^"
+      ],
+      [
+        0.4,
+        "S"
+      ],
+      [
+        0.5,
+        "T"
+      ],
+      [
+        0.58,
+        "G"
+      ],
+      [
+        0.63,
+        "~"
+      ],
+      [
+        1,
+        "."
+      ]
+    ],
+    "ashen": [
+      [
+        0.17,
+        "^"
+      ],
+      [
+        0.29,
+        "T"
+      ],
+      [
+        0.41,
+        "S"
+      ],
+      [
+        0.51,
+        "G"
+      ],
+      [
+        0.56,
+        "~"
+      ],
+      [
+        1,
+        "."
+      ]
+    ]
+  },
+  "harvest": {
+    ".": {
+      "cost": 4,
+      "find": 0.38,
+      "ambush": 0.08,
+      "debuff": 0.08,
+      "loot": [
+        [
+          0.46,
+          "roots"
+        ],
+        [
+          0.72,
+          "nuts"
+        ],
+        [
+          0.88,
+          "berries"
+        ],
+        [
+          1,
+          "herb"
+        ]
+      ],
+      "debuffs": [
+        [
+          1,
+          "forage_fatigue"
+        ]
+      ]
+    },
+    "G": {
+      "cost": 3,
+      "find": 0.52,
+      "ambush": 0.07,
+      "debuff": 0.06,
+      "loot": [
+        [
+          0.3,
+          "berries"
+        ],
+        [
+          0.52,
+          "seedcake"
+        ],
+        [
+          0.77,
+          "roots"
+        ],
+        [
+          0.9,
+          "emberberry"
+        ],
+        [
+          1,
+          "herb"
+        ]
+      ],
+      "debuffs": [
+        [
+          1,
+          "forage_fatigue"
+        ]
+      ]
+    },
+    "T": {
+      "cost": 5,
+      "find": 0.6,
+      "ambush": 0.16,
+      "debuff": 0.12,
+      "loot": [
+        [
+          0.24,
+          "berries"
+        ],
+        [
+          0.48,
+          "mushroom"
+        ],
+        [
+          0.7,
+          "nuts"
+        ],
+        [
+          0.87,
+          "meat"
+        ],
+        [
+          1,
+          "herb"
+        ]
+      ],
+      "debuffs": [
+        [
+          0.55,
+          "thorn_scratch"
+        ],
+        [
+          1,
+          "wet_chill"
+        ]
+      ],
+      "wetChillTurns": 8
+    },
+    "S": {
+      "cost": 6,
+      "find": 0.54,
+      "ambush": 0.14,
+      "debuff": 0.22,
+      "loot": [
+        [
+          0.34,
+          "mushroom"
+        ],
+        [
+          0.6,
+          "bogfruit"
+        ],
+        [
+          0.82,
+          "roots"
+        ],
+        [
+          1,
+          "herb"
+        ]
+      ],
+      "debuffs": [
+        [
+          0.55,
+          "marsh_miasma"
+        ],
+        [
+          1,
+          "wet_chill"
+        ]
+      ]
+    }
+  },
+  "navigation": {
+    "nearDistance": 2,
+    "axisRatio": 1.8,
+    "distanceBucket": 5
+  },
+  "defaultHungerCost": 1,
+  "campHungerCost": 1
+}

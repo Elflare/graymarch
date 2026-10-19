@@ -1,0 +1,34 @@
+{
+  "iron_sword": {
+    "kind": "equip",
+    "cn": "铁脊长剑",
+    "unlock": 1,
+    "slot": "weapon",
+    "max": 4,
+    "levels": [{"attack": 1, "description": "攻击 +{attack}。"}, {"attack": 2, "description": "攻击 +{attack}。"}, {"attack": 3, "description": "攻击 +{attack}。"}, {"attack": 4, "description": "攻击 +{attack}。"}]
+  },
+  "tower_shield": {
+    "kind": "equip",
+    "cn": "旧塔盾",
+    "unlock": 1,
+    "slot": "shield",
+    "max": 4,
+    "levels": [{"guard": 1, "description": "基础格挡额外 +{guard}。"}, {"guard": 2, "description": "基础格挡额外 +{guard}。"}, {"guard": 3, "description": "基础格挡额外 +{guard}。"}, {"guard": 4, "description": "基础格挡额外 +{guard}。"}]
+  },
+  "rune_ring": {
+    "kind": "equip",
+    "cn": "符文指环",
+    "unlock": 2,
+    "slot": "ring",
+    "max": 3,
+    "levels": [{"energy": 1, "description": "最大能量 +{energy}。"}, {"energy": 2, "description": "最大能量 +{energy}。"}, {"energy": 3, "description": "最大能量 +{energy}。"}]
+  },
+  "wanderer_cloak": {
+    "kind": "equip",
+    "cn": "行者披风",
+    "unlock": 2,
+    "slot": "cloak",
+    "max": 4,
+    "levels": [{"hp": 2, "description": "最大生命 +{hp}。"}, {"hp": 4, "description": "最大生命 +{hp}。"}, {"hp": 6, "description": "最大生命 +{hp}。"}, {"hp": 8, "description": "最大生命 +{hp}。"}]
+  }
+}

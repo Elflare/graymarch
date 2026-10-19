@@ -1,0 +1,67 @@
+{
+  "berries": {
+    "cn": "黑莓束",
+    "desc": "+{hunger} 饥饿；{chancePercent}% 获得“{buffName}”{buffTurns}回合（格挡+{buffGuard}）",
+    "hunger": 11,
+    "hp": 0,
+    "chance": 0.25,
+    "buff": "berry_focus"
+  },
+  "roots": {
+    "cn": "甜根",
+    "desc": "+{hunger} 饥饿；稳定、安全",
+    "hunger": 16,
+    "hp": 0
+  },
+  "mushroom": {
+    "cn": "灰帽菇",
+    "desc": "+{hunger} 饥饿；{chancePercent}% {buffName}{buffTurns}回合（移动/采集额外耗饥饿）",
+    "hunger": 22,
+    "hp": 0,
+    "chance": 0.3,
+    "buff": "stomach_cold"
+  },
+  "meat": {
+    "cn": "熏野味",
+    "desc": "+{hunger} 饥饿、+{hp} HP；{chancePercent}% {buffName}{buffTurns}回合（移动/采集额外耗饥饿）",
+    "hunger": 28,
+    "hp": 4,
+    "chance": 0.25,
+    "buff": "thirsty"
+  },
+  "herb": {
+    "cn": "苦叶药草",
+    "desc": "恢复生命，但 {hunger} 饥饿",
+    "hunger": -4,
+    "hp": 6,
+    "medic": true,
+    "message": "苦叶药草：+{hp} HP，{hunger} 饥饿"
+  },
+  "seedcake": {
+    "cn": "草籽饼",
+    "desc": "+{hunger} 饥饿；获得“{buffName}”{buffTurns}回合（移动/采集消耗{buffHungerCost}）",
+    "hunger": 9,
+    "hp": 0,
+    "buff": "trail_food"
+  },
+  "nuts": {
+    "cn": "铁壳坚果",
+    "desc": "+{hunger} 饥饿、+{hp} HP",
+    "hunger": 14,
+    "hp": 2
+  },
+  "bogfruit": {
+    "cn": "赤沼果",
+    "desc": "+{hunger} 饥饿，但 {hp} HP",
+    "hunger": 20,
+    "hp": -2,
+    "message": "赤沼果：+{hunger} 饥饿，{hp} HP"
+  },
+  "emberberry": {
+    "cn": "火刺莓",
+    "desc": "+{hunger} 饥饿；获得“{buffName}”{buffTurns}回合（攻击+{buffAttack}）",
+    "hunger": 7,
+    "hp": 0,
+    "buff": "ember_spice"
+  }
+}

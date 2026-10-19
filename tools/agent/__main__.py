@@ -151,13 +151,17 @@ def action_summary(result, client):
         after = result["observation"]
         brief = {"status": "completed", "revision": after["revision"],
                  "changes": observation_changes(client.before_command, after)}
+        inventory = result.get("inventoryChanges", {})
+        if inventory:
+            brief["changes"].setdefault("player", {}).setdefault("inventory", {}).update(inventory)
         learned = set()
         for group in ("skills", "passives", "equipment"):
             old = client.before_command["player"].get(group, {})
             learned.update(identifier for identifier, level in after["player"].get(group, {}).items() if old.get(identifier) != level)
         old_inventory = client.before_command["player"].get("inventory", {})
         if "inventory" in client.before_command["player"]:
-            learned.update(identifier for identifier, count in after["player"].get("inventory", {}).items() if count and not old_inventory.get(identifier))
+            after_inventory = {**after["player"].get("inventory", {}), **inventory}
+            learned.update(identifier for identifier, count in after_inventory.items() if count and not old_inventory.get(identifier))
         definitions = [definition_view(client.definitions[identifier]) for identifier in sorted(learned) if identifier in client.definitions]
         if definitions:
             brief["changes"]["definitions"] = definitions

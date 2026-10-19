@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createDOM} from './helpers/minidom.mjs';
-import {createGame} from '../../web/src/core/engine.js';
+import {resources,createHumanGame as createGame,loadHuman} from './helpers/resources.mjs';
 import {mountUI} from '../../web/src/ui/index.js';
 
 // No new dependency is required. Browser/e2e tests remain the visual authority.
@@ -75,7 +75,7 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
       decisionId:'test-reward', kind:'reward', title:'升级奖励', text:'选择构筑', cancelable:false,
       options:[{optionId:'heal', label:'愈合', description:'恢复生命', targetLevel:1, available:true}],
     };
-    game.importSave(reward);
+    loadHuman(game,reward);
     assert.equal($('rewardOverlay').classList.contains('show'), true);
     await $('choiceGrid').childNodes[0].onclick();
     assert.equal(game.observe().player.skills.heal, 1);
@@ -90,7 +90,7 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     Object.assign(camp.state,campCell);
     camp.state.visited.push(`${campCell.x},${campCell.y}`);
     camp.state.discovered.push(`${campCell.x},${campCell.y}`);
-    game.importSave(camp);
+    loadHuman(game,camp);
     await $('campBtn').onclick();
     assert.equal($('eventOverlay').classList.contains('show'), true);
     assert.equal(game.observe().pendingDecision.kind, 'camp');
@@ -106,7 +106,7 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     hidden.state.battle.lockedIntents[0].hidden = true;
     hidden.state.battle.lockedIntents[2].hidden = true;
     hidden.state.battle.hiddenIntentIndex = 2;
-    game.importSave(hidden);
+    loadHuman(game,hidden);
     assert.equal(document.querySelectorAll('.hidden-intent').length, 2, 'all hidden intents stay hidden');
 
     let stored;
@@ -123,8 +123,10 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     assert.ok(stored.state.battle);
     await $('localLoadBtn').onclick();
     assert.equal(game.observe().battle.battleId, stored.state.battle.id);
-    await $('agentControlBtn').onclick();
     assert.equal(game.getControl(), 'agent');
+    assert.equal($('controlMode').textContent, 'Agent');
+    assert.equal($('trainBtn').disabled, true);
+    await $('agentControlBtn').onclick();
     await $('takeoverBtn').onclick();
     assert.equal(game.getControl(), 'human');
     assert.deepEqual(calls.map(call=>call[0]), ['/api/v1/saves/manual','/api/v1/saves/manual/load','/api/owner/control','/api/owner/control']);
@@ -146,7 +148,7 @@ function animatedUI(t, prepare) {
   const game = createGame();
   game.humanAct('training.start');
   if (prepare) {
-    const save = game.exportSave();prepare(save.state);game.importSave(save);
+    const save = game.exportSave();prepare(save.state);loadHuman(game,save);
   }
   const ui = mountUI(game);
   t.after(() => ui.destroy());
@@ -274,7 +276,7 @@ for (const end of ['takeover','hidden','load','destroy']) test(`${end} cancels p
   t.mock.timers.tick(80);
   if(end==='takeover')game.control('human');
   if(end==='hidden'){document.hidden=true;document.dispatchEvent({type:'visibilitychange'});}
-  if(end==='load')game.importSave(game.exportSave());
+  if(end==='load')loadHuman(game,game.exportSave());
   if(end==='destroy')ui.destroy();
   assert.equal(game.uiRuntime().presentation,null);
   assert.equal(document.querySelectorAll('.vfx,.float').length,0);

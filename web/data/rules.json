@@ -1,0 +1,230 @@
+{
+  "initial": {
+    "classId": "wanderer",
+    "hunger": 80,
+    "energy": 2,
+    "sound": true
+  },
+  "newRun": {
+    "energy": 2
+  },
+  "combat": {
+    "basicGuard": 3,
+    "minDamage": 1,
+    "energyPerStep": 1,
+    "hungerPerStep": 1,
+    "exposedArmor": 2,
+    "exposedTurns": 2,
+    "poisonTurns": 2,
+    "enrageInterval": 3,
+    "trainingEnemy": "skeleton",
+    "trainingStats": {
+      "hp": 9,
+      "atk": 2,
+      "armor": 1
+    },
+    "retreat": {
+      "hpRatio": 0.4,
+      "energy": 1,
+      "minHunger": 20
+    },
+    "fallbackXp": 6,
+    "bossHiddenPhase": 2,
+    "bossHiddenSlot": 2,
+    "bossSealedPhase": 3,
+    "defenseActions": [
+      "basic_guard",
+      "guard_stance",
+      "riposte",
+      "mirror_guard"
+    ],
+    "grades": [
+      {
+        "id": "S",
+        "damage": 0,
+        "steps": 6,
+        "xp": 0.2
+      },
+      {
+        "id": "A",
+        "damage": 3,
+        "steps": 9,
+        "xp": 0.1
+      },
+      {
+        "id": "B",
+        "damage": 7,
+        "steps": null,
+        "xp": 0.05
+      },
+      {
+        "id": "C",
+        "damage": null,
+        "steps": null,
+        "xp": 0
+      }
+    ],
+    "basicActions": {
+      "basic_attack": {
+        "cn": "普通攻击",
+        "description": "造成 {attack} - 护甲 的伤害",
+        "cost": 0,
+        "cls": "basic"
+      },
+      "basic_guard": {
+        "cn": "格挡",
+        "description": "获得 {block} 格挡",
+        "cost": 0,
+        "cls": "def"
+      }
+    }
+  },
+  "growth": {
+    "xpBase": 8,
+    "xpLinear": 4,
+    "xpExponent": 1.25,
+    "catchupEvery": 3,
+    "affinityLevelCap": 3,
+    "affinityWeightCap": 4,
+    "rewardCount": 3,
+    "rareWeight": 1,
+    "normalWeight": 2,
+    "ownedWeight": 2,
+    "gradeRank": {
+      "C": 0,
+      "B": 1,
+      "A": 2,
+      "S": 3
+    },
+    "affinity": {
+      "power_strike": "burst",
+      "charge": "burst",
+      "execute": "burst",
+      "iron_sword": "burst",
+      "low_hp_fury": "burst",
+      "exact_finish": "precision",
+      "guard_stance": "guard",
+      "riposte": "guard",
+      "tower_shield": "guard",
+      "even_guard": "guard",
+      "precise_guard": "guard",
+      "fireball": "fire",
+      "bleed_strike": "bleed",
+      "life_drain": "sustain",
+      "heal": "sustain",
+      "wanderer_cloak": "sustain",
+      "armor_break": "precision",
+      "frost_bind": "control",
+      "divisible_edge": "precision",
+      "parity_edge": "tempo",
+      "whirlwind": "tempo",
+      "break_rhythm": "tempo",
+      "stagger": "tempo",
+      "time_snare": "control",
+      "fate_swap": "control",
+      "combo_strike": "tempo",
+      "third_strike": "tempo",
+      "rune_ring": "tempo",
+      "mirror_guard": "guard",
+      "pathfinder": "survival",
+      "forager": "survival",
+      "hearty": "survival",
+      "field_medic": "survival"
+    },
+    "unlocks": [
+      {
+        "field": "bestGrade",
+        "value": "S",
+        "id": "class_sentinel",
+        "message": "永久解锁：盾誓守卫"
+      },
+      {
+        "field": "bossWins",
+        "value": 1,
+        "id": "class_arcanist",
+        "message": "永久解锁：符文术士"
+      },
+      {
+        "field": "bossWins",
+        "value": 1,
+        "id": "time_tactics",
+        "message": "永久解锁：时间系稀有战术"
+      },
+      {
+        "field": "harvests",
+        "value": 10,
+        "id": "class_hunter",
+        "message": "永久解锁：黑木猎手"
+      },
+      {
+        "field": "bestGrade",
+        "value": "A",
+        "id": "interrupt_tactics",
+        "message": "永久解锁：打断系稀有战术"
+      }
+    ]
+  },
+  "messages": {
+    "starvation": "饥饿：生命 -{damage}",
+    "collapse": "你因饥饿倒下，被商旅带回旧王道。",
+    "battleFood": "战斗中无法翻找行囊",
+    "harvest": "采集：{name} ×{quantity}",
+    "harvestEmpty": "采集：没有找到可用物资",
+    "harvestAmbush": "采集惊动了附近的敌人！",
+    "towerLocked": "赤塔结界仍在：需要 {required} 枚塔印（{sigils}/{required}）",
+    "village": "聚落休整：+{hp} HP，+{hunger} 饥饿，{items}",
+    "ruins": "探索遗迹：符能恢复，并获得经验",
+    "buff": "{name}：{turns} 回合",
+    "trainingEnd": "训练结束：真实状态未改变",
+    "retreat": "战败撤退：恢复了部分生命，未失去经验。",
+    "sigil": "夺得赤塔印记：{sigils}/{required}",
+    "victoryTitle": "赤塔陷落",
+    "victoryText": "赤塔领主倒下了。最终战评价 {grade}，额外获得 {bonusXp} EXP。新的职业与战术可能已永久解锁。",
+    "continue": "继续探索",
+    "bossPhase": "赤塔领主进入阶段 {phase}",
+    "armorDown": "护甲-{amount}/{turns}回合",
+    "xp": "获得 {xp} EXP",
+    "rewardTitle": "升级奖励",
+    "rewardText": "选择一项构筑强化",
+    "campTitle": "遗火营地",
+    "campText": "每处营火只能进行一次休整或烹饪。",
+    "wait": "等待",
+    "sealed": "封印",
+    "unknown": "未知",
+    "attack": "攻击"
+  },
+  "handbook": [
+    {
+      "cn": "三步规划",
+      "text": "敌人先锁定未来三步。你最多安排三步行动，未填槽位视为等待；预估会实时显示，点击执行后一次结算三回合。"
+    },
+    {
+      "cn": "成长与流派",
+      "text": "击败敌人获得 EXP。升级才触发三选一；后期新技能会追赶等级，并轻度偏向你已经形成的构筑流派，但仍会出现跨流派选项。"
+    },
+    {
+      "cn": "区域生态",
+      "text": "无限世界由大型生态区域组成：风歌平原、黑木密林、灰苔湿地、裂脊高地、灰烬边境。区域会影响地形聚集和常见敌人。"
+    },
+    {
+      "cn": "营火与料理",
+      "text": "地图上偶尔会出现遗火营地。每处营火只能使用一次，可休息或把高风险食材加工成更稳定、更有针对性的料理。"
+    },
+    {
+      "cn": "稀有战术",
+      "text": "紫色三选一代表稀有战术技能。高级战术可以打断、延迟或交换敌人三步计划；部分需要永久解锁。"
+    },
+    {
+      "cn": "职业与永久解锁",
+      "text": "S 评价可解锁盾誓守卫；击败赤塔领主可解锁符文术士和时间系战术；累计采集 {hunterHarvests} 次可解锁黑木猎手。局外成长自动保存至项目 saves 目录，打开游戏自动恢复。"
+    },
+    {
+      "cn": "战术评价",
+      "text": "战后按受伤与战斗回合给出 S/A/B/C 评价，并奖励少量额外经验。精准格挡、精确终结等构筑进一步奖励小数值计算。"
+    },
+    {
+      "cn": "生存",
+      "text": "地图移动、采集与真实战斗都会消耗饥饿。采集可能遭遇伏击或负面状态；不同食物也有各自的利弊。饥饿为 0 后每回合损失 {starvationDamage} HP。"
+    }
+  ]
+}

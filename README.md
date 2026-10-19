@@ -4,7 +4,7 @@
 
 ## 启动
 
-需要 Python 3.11+、[uv](https://docs.astral.sh/uv/) 与支持 ES modules / WebSocket 的现代浏览器。在本目录执行：
+需要 Python 3.14+、[uv](https://docs.astral.sh/uv/) 与支持 ES modules / WebSocket 的现代浏览器。在本目录执行：
 
 ```sh
 uv run graymarch
@@ -17,6 +17,8 @@ uv run graymarch
 本版采用 Python 薄桥 + JavaScript 唯一规则核心：外部 agent → HTTP JSON → Python → WebSocket → 原游戏页面。Python 负责认证、路由、连接和文件存档，不计算战斗结果；UI 和 API 均提交语义命令，动画不是游戏规则的时钟。
 
 ## 人怎么玩
+
+游戏启动默认由 Agent 控制。要亲自操作，先点击“暂停 · 人工接管”；手动读档期间会暂停，成功后自动交回 Agent，失败则保留原旅程并维持人工模式。同一页面重连保留当前控制模式。
 
 1. 在世界地图用方向键或点击相邻格四向移动。悬停地形、行动与状态查看说明；“探索总览”只展示已发现区域。
 2. 在荒原、草原、森林、沼泽采集，点击行囊食物进食；营火可休息或料理。战斗中不能进食。
@@ -55,13 +57,35 @@ uv run graymarch
 
 动作默认输出紧凑 JSON：`status`、`revision`、`changes`，变化使用结算后的新值。角色数值、背包、构筑和状态只列变动项；移动后附有变化的周边地形、通行费用、当前采集/营火机会和导航。开战或下一批计划带新的敌人数值与锁定意图；事件/升级带当前选项；新学内容带新增定义，避免为了下一步决策再查一次。稳定定义、零库存、旧战报和逐步事件不重复输出。
 
+采集后立即遇袭也会报告到账后的库存，例如 `changes.player.inventory.berries = 2` 表示当前两份黑莓。原始成功回执的 `inventoryChanges` 只含实际变化物品的最终数量，重复收到同一回执不应累加。
+
 `./gm observe` 提供当前角色与决策；可加 `--scope scene` 只看场景、`--scope build` 看构筑效果、`--scope inventory` 看非零库存、`--scope player` 看角色、`--scope map` 看附近已发现地图。全局已发现地图用 `./gm map`，定义用 `./gm catalog`；`./gm information --scope scene` 也只展示场景，省略地图正文。地图默认用紧凑列表示坐标、地形、费用和状态标记，保留分页信息；查询不会重复携带身份字符串、协议版本或旧战报。`player` / `inventory` / 局部 `map` 查询使用主动 information，遵守宿主主动信息限频。加 `--raw` 获取未经精简的完整 API 响应。公共参数 `--url`、`--token-file`、`--raw`、`--wait-timeout` 可以放在子命令前后。
 
-使用前在游戏页面开启 Agent 控制。独立动作命令先读一次 compact；pending 或提交超时后只查询原命令回执，默认最多等待 30 秒。动画阻塞时等待后确认决策未变化才重试；状态变化或结果未知时停止并输出恢复信息。退出码 0 表示成功，1 表示错误/拒绝，2 表示 pending/unknown；未确认时用 `./gm command COMMAND_ID` 查询，别盲目重做。
+启动完成后默认启用 Agent 控制；先确认 status 的 connected、ready 和 controlMode。人工接管后等待玩家再次交回控制权。独立动作命令先读一次 compact；pending 或提交超时后只查询原命令回执，默认最多等待 30 秒。动画阻塞时等待后确认决策未变化才重试；状态变化或结果未知时停止并输出恢复信息。退出码 0 表示成功，1 表示错误/拒绝，2 表示 pending/unknown；未确认时用 `./gm command COMMAND_ID` 查询，别盲目重做。
 
 Python 脚本可用 `from tools.agent import GraymarchClient`，调用 `move/preview/fight/choose` 等方法，并复用动作返回的新观察；底层 `observe/information/act/command` 仍可用。`act()` 只提交一次，`execute()` 和常用动作方法会等待本次回执并处理动画阻塞。原 [examples/agent_client.py](examples/agent_client.py) 保留为兼容入口，仍输出完整 JSON。
 
 准确请求字段、身份保护、控制权和恢复步骤见操作指南。宿主配置 `full_info.min_turn_interval = 0` 表示主动完整信息查询不限制回合间隔；正整数才启用限频。这不是按秒限流。
+
+## 玩法数据与配置
+
+服务启动配置继续使用 `config.example.toml`（通过 `--config` 指定）；玩法数据统一位于 [`web/data/`](web/data/)，使用标准 JSON：
+
+| 文件 | 内容 |
+|---|---|
+| `classes.json` | 职业基础属性、初始构筑、物品与介绍 |
+| `skills.json`、`passives.json`、`equipment.json` | 各级参数、耗能、冷却、解锁等级与说明模板 |
+| `enemies.json` | 敌人属性、行为参数、行动名称、图鉴说明 |
+| `foods.json`、`buffs.json` | 食物恢复量、概率、旅途效果及持续时间 |
+| `events.json` | 区域/普通事件、选项收益、营火配方 |
+| `world.json` | 地形、生态、生成阈值、采集、掉落、距离强化与导航参数 |
+| `rules.json` | 初始设置、战斗/成长参数、评价、永久解锁、规则说明与玩法消息 |
+
+修改数据后刷新页面生效；刷新前保存旅程。资源只在启动时加载，游戏中不热更新。JSON 不支持注释和尾随逗号。缺失文件、无效字段、错误 ID 引用或不完整等级表会阻止启动，页面显示文件及字段位置并提供重试。
+
+技能等内容的 `levels` 数组按等级 1 开始排列，必须完整覆盖 `max`。例如修改 `skills.json` 中重斩第一级的 `damageBonus`，实际伤害与说明模板中的 `{damageBonus}` 会一起更新；不要把数值直接填进模板。可选效果说明放在 `details`，`when` 指向对应参数，参数启用时才显示该片段。敌人图鉴、食物和旅途效果也从对应参数生成说明。ID 和已有机制名称保持稳定；新增机制需要实现 JS 执行函数。事件效果仅支持已有的物品、生命、饥饿、经验、旅途效果、战斗及固定随机来源。
+
+[`GameResources`](web/src/content/resources.js) 统一校验并保存只读资源。浏览器入口用 `fetch` 加载；Node 测试用文件读取加载，随后通过 `createGame({resources, ...options})` 注入同一类资源。游戏核心保持同步，不读文件、不发网络请求。资源不写入存档，当前 `schemaVersion: 1` 存档继续可读；已保存的敌人、锁定意图和待选决策保留原快照，后续生成内容使用本次启动加载的数据。新存档会固化当前事件与营火选项的收益，内部事件效果不出现在 Agent 观察中；迁移前的事件存档没有效果描述，仍按原有来源坐标、使用当前资源重建。
 
 ## 通用规则
 

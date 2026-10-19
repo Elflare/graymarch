@@ -216,11 +216,17 @@ fetch('/bootstrap',{method:'POST',headers:{'Content-Type':'application/json'},bo
         if session.active_command:
             raise BridgeError("BUSY_COMMAND", "Wait for the pending command before loading")
         session.mode = "human"
+        await session.query("control", {"mode": "human"})
         try:
             save = saves.read()
         except (ValueError, OSError) as exc:
             raise BridgeError("SAVE_INVALID", str(exc), 422)
-        return await session.query("import_save", {"save": save})
+        result = await session.query("import_save", {"save": save})
+        session.update(result)
+        session.receipts.clear()
+        session.snapshots.clear()
+        session.last_full.clear()
+        return result
 
     web = root / "web"
     if web.exists():

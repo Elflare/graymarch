@@ -1,7 +1,10 @@
 // Headless bridge peer for cross-language integration tests. No browser/UI claim.
 import readline from 'node:readline';
+import fs from 'node:fs/promises';
+import {GameResources} from '../../web/src/content/resources.js';
 import {createGame} from '../../web/src/core/engine.js';
-const game=createGame({seed:12345});
+const resources=await GameResources.load(async file=>JSON.parse(await fs.readFile(new URL('../../web/data/'+file,import.meta.url),'utf8')));
+const game=createGame({resources,seed:12345});
 function identity(){let f=game.observe();return {...Object.fromEntries(['sessionId','runId','epoch','revision','decisionTurn','phase'].map(k=>[k,f[k]])),controlMode:game.getControl()};}
 console.log(JSON.stringify({type:'ready',...identity()}));
 for await (const line of readline.createInterface({input:process.stdin})){
