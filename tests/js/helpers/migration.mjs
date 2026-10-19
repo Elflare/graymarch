@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {startBattle} from './battle.mjs';
 
 // These fingerprints were captured from the pre-resource kernel. Exclude prose
 // (now parameterized), random session IDs and function properties, retain outcomes.
@@ -28,7 +29,7 @@ export function migrationFingerprints(factory) {
   }
   const combat={};
   for(const[id,d]of Object.entries(R.activeSkills))for(let lv=1;lv<=d.max;lv++)for(const block of [0,3]){
-    const g=game();g.humanAct('training.start');
+    const g=game();startBattle(g);
     const save=g.exportSave(),s=save.state,p=s.player,e=s.battle.enemy;
     p.hp=15;p.maxHp=100;p.energy=20;p.maxEnergy=30;p.skills[id]=lv;
     p.passives={third_strike:2,low_hp_fury:2,parity_edge:2,divisible_edge:2,precise_guard:3,even_guard:2};
@@ -36,7 +37,10 @@ export function migrationFingerprints(factory) {
     e.hp=1000;e.maxHp=1000;e.block=block;e.burn={dmg:1,turns:3};e.bleed={dmg:1,turns:2};
     s.battle.lockedIntents=[{id:'attack',name:'a',dmg:3},{id:'guard',name:'g',block:2},{id:'drain',name:'d',dmg:4,drain:1,poison:1}];
     s.battle.plan=[id,id,id];g.importSave(save);
-    combat[`${id}:${lv}:${block}`]=digest(g.uiRuntime().simulatePlan());
+    const preview=g.uiRuntime().simulatePlan();
+    // Historical fingerprints predate real-world time in this fixed encounter.
+    preview.hunger=80;preview.worldTurn=0;
+    combat[`${id}:${lv}:${block}`]=digest(preview);
   }
   return {map:digest(map),intents:digest(intents),harvest:digest(harvest),combat};
 }
@@ -44,7 +48,7 @@ export function migrationFingerprints(factory) {
 export function legacySaves(factory) {
   const game=()=>{const g=factory({seed:12345});const save=g.exportSave();save.state.runId='legacy';save.state.sessionId='legacy';g.importSave(save);return g;};
   const world=game(),battle=game(),event=game(),camp=game(),reward=game();
-  battle.humanAct('training.start');
+  startBattle(battle);
   event.uiRuntime().triggerEvent(11,13);
   camp.uiRuntime().showCampfire();
   reward.uiRuntime().showReward(1);

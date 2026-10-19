@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {startBattle} from './helpers/battle.mjs';
 import assert from 'node:assert/strict';
 import {resources,createHumanGame as createGame,loadHuman} from './helpers/resources.mjs';
 import {startMetaAutosave} from '../../web/src/persistence/meta.js';
@@ -30,24 +31,22 @@ test('startup restores unlocks; old journeys and new runs preserve permanent pro
   assert.deepEqual(game.exportSave(), before);
 });
 
-test('real boss victory saves immediately; training, preview and unrelated actions do not', async () => {
+test('real boss victory saves immediately; preview and unrelated actions do not', async () => {
   const game = createGame(), writes = [];
   const sync = startMetaAutosave(game, game.exportMeta(), {post: async (path, body) => writes.push(body.meta)});
   try {
     await sync.flush();
-    game.humanAct('training.start');
+    startBattle(game);
     const plan = ['basic_attack', null, null];
     game.preview(payload(game, plan));
     assert.throws(() => game.humanAct('world.move', {direction: 'east'}));
     game.humanAct('battle.commit', payload(game, plan));
-    game.humanAct('training.exit');
+    loadHuman(game,createGame().exportSave());
     await sync.flush();
     assert.equal(writes.length, 0);
 
-    game.humanAct('training.start');
+    startBattle(game);
     const save = game.exportSave();
-    save.state.training = false;
-    save.state.battleOrigin = null;
     save.state.battle.type = 'B';
     save.state.battle.enemy.hp = 1;
     loadHuman(game,save);

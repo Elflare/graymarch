@@ -56,8 +56,6 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 ./gm preview basic_guard basic_attack wait
 ./gm plan basic_guard basic_attack wait
 ./gm fight basic_guard basic_attack wait
-./gm train start
-./gm train exit
 ./gm command COMMAND_ID
 ./gm information --scope player,scene
 ./gm map --limit 100
@@ -114,12 +112,16 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 - `sessionId`：页面运行身份；`runId`：旅程；`epoch`：读档等受控替换的代次。三者任何一个变化都要重建当前基线。
 - `revision`：成功业务提交版本。查询与预演不推进；计划编辑可推进。
 - `decisionTurn`：真正推进游戏的一次成功决策计 1。三步战斗提交计 1，不是 3；全空计划推进敌人/状态也计 1。进食、有效选择、移动、采集计 1。
-- `worldTurn`：游戏世界时间。一次三步战斗可能推进多次；训练不推进真实世界时间。它不是 API 限频计数。
+- `worldTurn`：游戏世界时间。一次三步战斗可能推进多次。它不是 API 限频计数。
 - `scene.kind` 为 world/battle；`scene.id` 区分不同战斗。`phase` 才决定当前能做什么，UI 页签不是游戏状态。
 - `choice.pending` 必须使用当前 `decisionId` 与选项的 `optionId`。相同名称的下一轮奖励也有新身份，不复用旧选项。
 - 战斗计划编辑与提交的 payload 必须带当前 `battleId`、`batchId`（来自 `observation.battle`）。下一组三步即使敌人相同，也不能提交旧批次计划。
 
 常见路径：world.ready → battle.planning → world中的choice.pending（升级）→ world.ready。Boss 胜利先显示胜利选择，再处理升级。不能假设所有选择结束后都回战斗。
+
+战败或生命归零进入 `phase=game.over`，`allowed=[]`；动作仍可返回 `status=completed`，表示该动作完成并导致死亡。`runResult` 为冻结的结算信息，含 `cause`（`combat` / `starvation`）、`classId`、`level`、`xp`、`worldTurn`、`wins`、`sigils`、`visited` 和 `build`（skills/passives/equipment）。compact、sync、information 和 CLI 简报均保留该信息，连续移动以 `movement.stop=game.over` 停止。此时停止提交玩法动作，重开由玩家在结束页操作。
+
+饥饿值为 0 时，每个世界回合扣除最大生命的 10%，向上取整；三步战斗按小回合分别扣血。查询、预演和计划编辑不扣血。导航的 distance 是每五格分档的直线估距，不保证包含绕路后的实际步数。
 
 ## 4. 语义动作
 
@@ -135,10 +137,8 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 | choice.cancel | decisionId | 仅显式允许取消的选择 |
 | battle.plan.set | battleId, batchId, plan | 三槽技能 ID 或 null；只编辑，不执行 |
 | battle.commit | battleId, batchId, plan | 三槽原子提交；不依赖先 plan.set |
-| training.start | {} | 世界阶段进入训练 |
-| training.exit | {} | 恢复训练前状态 |
 
-主动撤退暂时禁用：`battle.retreat` 不在合法动作中，提交返回 `INVALID_PHASE`。真实战斗需结算胜败；`training.exit` 仅用于训练。
+主动撤退暂时禁用，训练功能已移除：`battle.retreat`、`training.start`、`training.exit` 均不在合法动作中，提交返回 `INVALID_PHASE`。
 
 战斗计划使用 `basic_attack`、`basic_guard` 和已拥有主动技能 ID，不能传中文名、技能等级、伤害或敌人动作。封印槽传 null。技能效果及冷却长度见返回的技能描述；`player.cooldowns` 仅列仍在冷却的技能及剩余步数，跨批次延续。可预演 `POST /api/v1/preview`，请求正文为 `{ "expectedRevision": 当前版本, "battleId": 当前战斗ID, "batchId": 当前批次ID, "plan": ["basic_guard", "basic_attack", null] }`。只读预演不消耗能量、随机流、奖励或时间。实际返回 `partial`、`blockedAt`、`steps`、`outcome` 及公开可推演的结果。`partial=true` 时，只信任已覆盖步骤，不把缺失部分当作安全。当前步骤若能量不足或技能仍在冷却，技能失败但敌人仍行动；先看逐步预演，不能只验证计划结构。
 
@@ -173,7 +173,7 @@ curl -sS -H "Authorization: Bearer $TOKEN" "$BASE/api/v1/observation"
 min_turn_interval = 0
 ```
 
-正整数 N 要求两次成功主动新快照之间至少推进 N 个 decisionTurn。跨 scope 共享限频；同快照的合法后续页不重复计数。查询、预演、计划编辑、错误、重复回执、无后果开关选择、保存和纯训练入口/退出不能刷回合。
+正整数 N 要求两次成功主动新快照之间至少推进 N 个 decisionTurn。跨 scope 共享限频；同快照的合法后续页不重复计数。查询、预演、计划编辑、错误、重复回执、无后果开关选择、保存不能刷回合。
 
 限频返回 HTTP 429 / `FULL_INFO_RATE_LIMITED`，带 `retryAfterTurns`、`decisionTurn`、`nextAllowedDecisionTurn` 和最新 compact；单位是决策回合，不是秒。必要当前帧始终可取，不要求盲目行动解限。换 contextId、HTTP 连接或伪造旧版本不能获得无限全图恢复。
 

@@ -21,8 +21,16 @@ function validateEffect(effect,R){
   for(let group of ['skills','passives','equipment']){if(!s.player[group]||typeof s.player[group]!=='object')throw R.error('INVALID_SAVE','构筑无效');for(let[id,n]of Object.entries(s.player[group]))if(!R.rewardPool[id]||!Number.isInteger(n)||n<0||n>R.rewardPool[id].max)throw R.error('INVALID_SAVE','构筑等级无效');}
  if(s.player.cooldowns!==undefined){if(!s.player.cooldowns||typeof s.player.cooldowns!=='object'||Array.isArray(s.player.cooldowns))throw R.error('INVALID_SAVE','冷却数据无效');for(let[id,n]of Object.entries(s.player.cooldowns))if(!s.player.skills[id]||!Number.isInteger(n)||n<1||n>(R.activeSkills[id]?.cooldown||0))throw R.error('INVALID_SAVE','冷却步数无效');}
  for(let id of Object.keys(R.foodDefs))if(!Number.isInteger(s.inventory[id])||s.inventory[id]<0)throw R.error('INVALID_SAVE','背包无效');
- if(typeof s.inBattle!=='boolean'||typeof s.training!=='boolean'||typeof s.runId!=='string'||s.level<1||s.hunger>s.maxHunger||s.player.hp>s.player.maxHp||s.player.energy>s.player.maxEnergy)throw R.error('INVALID_SAVE','状态不变量无效');
- if(!!s.inBattle!==!!s.battle)throw R.error('INVALID_SAVE','战斗阶段不一致');if(s.battle){let b=s.battle;if(!R.enemyDefs[b.enemy?.id]||!Array.isArray(b.plan)||b.plan.length!==3||!Array.isArray(b.lockedIntents)||b.lockedIntents.length!==3||!Array.isArray(b.carryIntents)||!b.stats||!b.id||!b.batchId)throw R.error('INVALID_SAVE','战斗数据不完整');if(s.training&&!s.battleOrigin?.player)throw R.error('INVALID_SAVE','缺少训练快照');}
+ if(s.training)throw R.error('INVALID_SAVE','训练存档已不再支持');
+ if(typeof s.inBattle!=='boolean'||typeof s.runId!=='string'||s.level<1||s.hunger>s.maxHunger||s.player.hp>s.player.maxHp||s.player.energy>s.player.maxEnergy)throw R.error('INVALID_SAVE','状态不变量无效');
+ if(s.runResult){
+  const result=s.runResult;
+  if(!['combat','starvation'].includes(result.cause)||s.player.hp!==0||s.inBattle||s.pendingDecision||s.pendingRewards||result.classId!==s.classId)throw R.error('INVALID_SAVE','结束状态无效');
+  for(const key of ['level','xp','worldTurn','wins','sigils'])if(result[key]!==s[key])throw R.error('INVALID_SAVE','结束统计不一致');
+  if(result.visited!==new Set(s.visited).size||!result.build)throw R.error('INVALID_SAVE','结束统计不完整');
+  for(const group of ['skills','passives','equipment'])if(JSON.stringify(result.build[group])!==JSON.stringify(s.player[group]))throw R.error('INVALID_SAVE','结束构筑不一致');
+ }else if(s.player.hp===0)throw R.error('INVALID_SAVE','零生命旅程缺少结束状态');
+ if(!!s.inBattle!==!!s.battle)throw R.error('INVALID_SAVE','战斗阶段不一致');if(s.battle){let b=s.battle;if(!R.enemyDefs[b.enemy?.id]||!Array.isArray(b.plan)||b.plan.length!==3||!Array.isArray(b.lockedIntents)||b.lockedIntents.length!==3||!Array.isArray(b.carryIntents)||!b.stats||!b.id||!b.batchId)throw R.error('INVALID_SAVE','战斗数据不完整');}
  if(s.battle){for(let k of ['hp','maxHp','atk','baseArmor','block'])if(!Number.isFinite(s.battle.enemy[k])||s.battle.enemy[k]<0)throw R.error('INVALID_SAVE','敌人数值无效');for(let a of [...s.battle.lockedIntents,...s.battle.carryIntents])if(!a||!['attack','heavy','guard','venom','drain','wait'].includes(a.id)||typeof a.name!=='string')throw R.error('INVALID_SAVE','敌人意图无效');for(let id of s.battle.plan)if(id!==null&&!['basic_attack','basic_guard',...Object.keys(s.player.skills)].includes(id))throw R.error('INVALID_SAVE','战斗计划无效');}
  for(let b of s.buffs)if(!b||typeof b.id!=='string'||!Number.isInteger(b.turns)||b.turns<1)throw R.error('INVALID_SAVE','状态效果无效');
  if(s.pendingDecision&&(!['camp','event','reward','victory'].includes(s.pendingDecision.kind)||!Array.isArray(s.pendingDecision.options)||!s.pendingDecision.decisionId))throw R.error('INVALID_SAVE','选择数据无效');

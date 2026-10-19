@@ -5,6 +5,7 @@ import {createDOM} from './helpers/minidom.mjs';
 import {resources,createHumanGame as createGame,loadHuman} from './helpers/resources.mjs';
 import {mountUI} from '../../web/src/ui/index.js';
 
+import {startBattle} from './helpers/battle.mjs';
 // No new dependency is required. Browser/e2e tests remain the visual authority.
 test('preserved UI renders, dispatches actions, and stays read-only', async () => {
   const document = createDOM(fs.readFileSync(new URL('../../web/index.html', import.meta.url), 'utf8'));
@@ -23,11 +24,10 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     assert.equal($('coord').textContent, '0, 0');
     assert.equal($('worldLevel').textContent, '1');
 
-    await $('trainBtn').onclick();
+    startBattle(game);ui.render();
     assert.equal(game.observe().phase, 'battle.planning');
-    assert.equal($('fleeBtn').style.display, '');
-    assert.equal($('fleeBtn').disabled, false);
-    assert.equal($('fleeBtn').textContent, '退出训练');
+    assert.equal($('trainBtn'), null);
+    assert.equal($('fleeBtn'), null);
     assert.equal($('battle').classList.contains('active'), true);
     for (const id of ['basic_attack','basic_guard','basic_attack']) {
       await document.querySelector(`[data-action="${id}"]`).onclick();
@@ -43,7 +43,7 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     assert.equal($('turn').textContent, '4');
     assert.match($('combatAnalysis').textContent, /上一批结算/);
     assert.equal(document.querySelectorAll('.settlement-row').length, 3);
-    await $('fleeBtn').onclick();
+    loadHuman(game,initial);
     assert.equal(game.observe().phase, 'world.ready');
     assert.equal($('world').classList.contains('active'), true);
 
@@ -63,7 +63,7 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     await document.querySelector(`.cell[data-x="${neighbor.x}"][data-y="${neighbor.y}"]`).onclick();
     assert.equal($('coord').textContent, `${neighbor.x}, ${neighbor.y}`);
     game.control('agent');
-    assert.equal($('trainBtn').disabled, true);
+    assert.equal($('harvestBtn').disabled, true);
     assert.equal($('controlMode').textContent, 'Agent');
     assert.equal($('takeoverBtn').style.display, 'block');
     const revision = game.observe().revision;
@@ -104,7 +104,7 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     assert.equal(game.observe().pendingDecision, null);
     assert.equal($('campBtn').disabled, true);
 
-    await $('trainBtn').onclick();
+    startBattle(game);ui.render();
     const hidden = game.exportSave();
     hidden.state.battle.lockedIntents[0].hidden = true;
     hidden.state.battle.lockedIntents[2].hidden = true;
@@ -128,25 +128,20 @@ test('preserved UI renders, dispatches actions, and stays read-only', async () =
     assert.equal(game.observe().battle.battleId, stored.state.battle.id);
     assert.equal(game.getControl(), 'agent');
     assert.equal($('controlMode').textContent, 'Agent');
-    assert.equal($('trainBtn').disabled, true);
+    assert.equal($('harvestBtn').disabled, true);
     await $('agentControlBtn').onclick();
     await $('takeoverBtn').onclick();
     assert.equal(game.getControl(), 'human');
     assert.deepEqual(calls.map(call=>call[0]), ['/api/v1/saves/manual','/api/v1/saves/manual/load','/api/owner/control','/api/owner/control']);
     assert.deepEqual(calls[2][1], {mode:'agent'});
     assert.deepEqual(calls[3][1], {mode:'human'});
-    await $('fleeBtn').onclick();
-    game.uiRuntime().startBattle('E');
-    ui.render();
-    assert.equal($('fleeBtn').style.display, 'none');
-    assert.equal($('fleeBtn').disabled, true);
-    const realBattle = game.exportSave();
-    await $('fleeBtn').onclick();
-    assert.deepEqual(game.exportSave(), realBattle, 'the old button cannot exit a real battle');
+    loadHuman(game,initial);
   } finally {
     ui.destroy();
   }
 });
+
+const actionPayload=(game,plan)=>({battleId:game.observe().battle.battleId,batchId:game.observe().battle.batchId,plan});
 
 function animatedUI(t, prepare) {
   t.mock.timers.enable({apis:['setTimeout','Date'],now:1000});
@@ -157,7 +152,7 @@ function animatedUI(t, prepare) {
   globalThis.innerHeight = 1100;
   globalThis.matchMedia = () => ({matches:false});
   const game = createGame();
-  game.humanAct('training.start');
+  startBattle(game);
   if (prepare) {
     const save = game.exportSave();prepare(save.state);loadHuman(game,save);
   }
@@ -188,7 +183,7 @@ test('Agent control preserves availability and animates checkpoints before revea
   assert.deepEqual(game.act(command),result);
   ui.render();
   assert.equal($('ehp').textContent,'9','receipt lookup and rerenders do not replay or skip');
-  assert.throws(()=>game.act({...command,commandId:'blocked',expectedRevision:revision,type:'training.exit',payload:{}}),e=>e.code==='BUSY_PRESENTATION');
+  assert.throws(()=>game.act({...command,commandId:'blocked',expectedRevision:revision,type:'battle.plan.set',payload:{}}),e=>e.code==='BUSY_PRESENTATION');
   t.mock.timers.tick(80);
   assert.equal($('ehp').textContent,'6');
   assert.equal($('php').textContent,'18');
@@ -215,7 +210,7 @@ test('Agent control preserves availability and animates checkpoints before revea
 
 test('the killing blow plays before leaving battle and showing level-up rewards', t => {
   const {$,game,commit}=animatedUI(t,state=>{
-    state.training=false;state.battleOrigin=null;state.battle.enemy.hp=3;state.battle.enemy.xp=100;
+    state.battle.enemy.hp=3;state.battle.enemy.xp=100;
   });
   commit(['basic_attack',null,null]);
   assert.equal(game.observe().phase,'choice.pending');
@@ -249,21 +244,84 @@ test('hidden intents stay hidden until their action is played', t => {
   assert.equal(game.observe().player.hp,1);
 });
 
-test('defeat plays lethal damage before showing post-battle recovery', t => {
+test('defeat plays lethal damage before showing the game-over summary', t => {
   const {$,game,commit}=animatedUI(t,state=>{
-    state.training=false;state.battleOrigin=null;state.player.hp=1;
+    state.player.hp=1;
   });
   commit([null,null,null]);
-  assert.equal(game.observe().phase,'world.ready');
-  const recovered=game.observe().player.hp;
-  assert(recovered>0);
+  assert.equal(game.observe().phase,'game.over');
+  assert.equal(game.observe().player.hp,0);
+  assert.equal($('gameOverOverlay').classList.contains('show'),false);
   assert.equal($('battle').classList.contains('active'),true);
   t.mock.timers.tick(580);
   assert.equal($('php').textContent,'0');
   t.mock.timers.tick(450);
   assert.equal($('world').classList.contains('active'),true);
-  assert.equal($('worldHpText').textContent,`${recovered}/18`);
+  assert.equal($('worldHpText').textContent,'0/18');
+  assert.equal($('gameOverOverlay').classList.contains('show'),true);
   assert.equal(game.uiRuntime().presentation,null);
+});
+
+test('Agent-mode load stays clickable and explains takeover before sending any request',async t=>{
+  const {$,game}=animatedUI(t),calls=[],living=game.exportSave();
+  game.setConnectionStatus('online');game.control('agent');
+  t.mock.method(globalThis,'fetch',async(path,options)=>{
+    calls.push(path);
+    assert.equal(path,'/api/v1/saves/manual/load');
+    game.importSave(living);
+    return {ok:true,json:async()=>({ok:true})};
+  });
+  assert.equal($('localLoadBtn').disabled,false);
+  await $('localLoadBtn').onclick();
+  assert.equal($('toast').textContent,'请人工接管后读档。');
+  assert.deepEqual(calls,[]);assert.equal(game.getControl(),'agent');
+  game.control('human');await $('localLoadBtn').onclick();
+  assert.deepEqual(calls,['/api/v1/saves/manual/load']);
+  assert.equal(game.getControl(),'agent');
+});
+
+test('game-over restart takes ownership, allows cancel, and starts the selected class',async t=>{
+  const {$,game,commit,document}=animatedUI(t,state=>{state.player.hp=1;});
+  const living=game.exportSave(),calls=[];
+  t.mock.method(globalThis,'fetch',async(path,options)=>{
+    calls.push([path,JSON.parse(options.body)]);
+    assert.equal(path,'/api/owner/control');game.control(JSON.parse(options.body).mode);
+    return {ok:true,json:async()=>({ok:true})};
+  });
+  commit([null,null,null]);t.mock.timers.tick(1200);
+  const ended=game.exportSave(),runId=game.observe().runId,meta=game.exportMeta();
+  assert.equal($('gameOverOverlay').classList.contains('show'),true);
+  assert.match($('runStats').textContent,/世界回合/);
+  assert.match($('gameOverCause').textContent,/战斗/);
+  assert.equal($('restartRunBtn').disabled,false);
+  await $('restartRunBtn').onclick();
+  assert.deepEqual(calls,[['/api/owner/control',{mode:'human'}]]);
+  assert.equal(game.getControl(),'human');
+  assert.equal($('classOverlay').classList.contains('show'),true);
+  assert.equal($('gameOverOverlay').classList.contains('show'),false);
+  $('closeClassBtn').onclick();
+  assert.equal($('gameOverOverlay').classList.contains('show'),true);
+  assert.deepEqual(game.exportSave(),ended);
+  await $('restartRunBtn').onclick();
+  await document.querySelector('[data-class="wanderer"]').onclick();
+  assert.equal(game.observe().phase,'world.ready');assert.notEqual(game.observe().runId,runId);
+  assert.equal($('gameOverOverlay').classList.contains('show'),false);
+  assert.equal(game.getControl(),'human');assert.deepEqual(game.exportMeta(),meta);
+  loadHuman(game,ended);assert.equal($('gameOverOverlay').classList.contains('show'),true);
+  $('gameOverSaveBtn').onclick();assert.equal($('saveOverlay').classList.contains('show'),true);
+  assert.equal($('gameOverOverlay').classList.contains('show'),false);
+  $('closeSaveBtn').onclick();assert.equal($('gameOverOverlay').classList.contains('show'),true);
+  loadHuman(game,living);assert.equal($('gameOverOverlay').classList.contains('show'),false);
+});
+
+test('failed ownership transfer keeps the result page and does not restart',async t=>{
+  const {$,game,commit}=animatedUI(t,state=>{state.player.hp=1;});
+  commit([null,null,null]);t.mock.timers.tick(1200);const ended=game.exportSave();
+  t.mock.method(globalThis,'fetch',async()=>({ok:false,status:503,json:async()=>({error:{message:'bridge offline'}})}));
+  await $('restartRunBtn').onclick();
+  assert.equal(game.getControl(),'agent');assert.deepEqual(game.exportSave(),ended);
+  assert.equal($('gameOverOverlay').classList.contains('show'),true);
+  assert.equal($('classOverlay').classList.contains('show'),false);
 });
 
 test('a presentation exception restores the final state and releases the action lock', t => {
@@ -296,5 +354,5 @@ for (const end of ['takeover','hidden','load','destroy']) test(`${end} cancels p
   t.mock.timers.tick(6000);
   assert.deepEqual(game.exportSave(),saved);
   if(game.getControl()==='agent')game.control('human');
-  assert.doesNotThrow(()=>game.humanAct('training.exit'));
+  assert.doesNotThrow(()=>game.humanAct('battle.plan.set',actionPayload(game,[null,null,null])));
 });

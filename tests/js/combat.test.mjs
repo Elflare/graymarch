@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import {startBattle} from './helpers/battle.mjs';
 import {resources,createHumanGame as createGame,loadHuman} from './helpers/resources.mjs';
 import {initialState} from '../../web/src/core/state.js';
 import {installContent} from '../../web/src/content/definitions.js';
+import {installLifecycle} from '../../web/src/core/lifecycle.js';
 import {installCombat} from '../../web/src/core/combat.js';
 const copy=x=>JSON.parse(JSON.stringify(x));
-function runtime(){const R={resources,state:initialState(resources),toast(){},gainXP(){},key:(x,y)=>`${x},${y}`,showSimpleEvent(...a){R.event=a;}}; installContent(R);R.enemyFor=()=>({...R.enemyDefs.skeleton,id:'skeleton',hp:1000,maxHp:1000,atk:2,armor:1,baseArmor:1,block:0,xp:5});installCombat(R);return R;}
+function runtime(){const R={resources,state:initialState(resources),toast(){},gainXP(){},key:(x,y)=>`${x},${y}`,showSimpleEvent(...a){R.event=a;}}; R.events=[];installLifecycle(R);installContent(R);R.enemyFor=()=>({...R.enemyDefs.skeleton,id:'skeleton',hp:1000,maxHp:1000,atk:2,armor:1,baseArmor:1,block:0,xp:5});installCombat(R);return R;}
 function started(){let R=runtime();R.startBattle();return R;}
 function samePreviewExecution(R){let before=copy(R.state),f=R.simulatePlan();assert.deepEqual(copy(R.state),before);const result=R.resolvePlan();for(let key of ['p','e','hunger','buffs','worldTurn','turn','outcome','stats','steps','intents','carryIntents'])assert.deepEqual(result[key],f[key],`${key} differs`);assert.equal(result.ok,true);return result;}
 for(let lv=1;lv<=5;lv++) for(let id of ['basic_attack','basic_guard',...Object.keys(runtime().activeSkills)]) if(!runtime().activeSkills[id]||lv<=runtime().activeSkills[id].max)test(`Shared kernel: ${id} level ${lv}`,()=>{
@@ -22,7 +24,6 @@ test("Delaying a hidden action carries only an opaque placeholder in previews.",
 test("Hunger kills during first round; there is no map collapse or continued batch.",()=>{let R=started(),s=R.state,b=s.battle;s.player.hp=1;s.hunger=0;b.plan=['basic_guard',null,null];let result=samePreviewExecution(R);assert.equal(result.outcome,'defeat');assert.equal(result.steps.length,1);assert.equal(s.inBattle,false);assert.equal(s.worldTurn,1);assert.equal(s.x,0);});
 test("Counter victory happens before poison/hunger can tick.",()=>{let R=started(),s=R.state,b=s.battle;s.player.hp=1;s.hunger=0;s.player.poison={dmg:100,turns:2};s.player.skills.riposte=1;b.enemy.hp=3;b.plan=['riposte',null,null];let result=samePreviewExecution(R);assert.equal(result.outcome,'victory');assert.equal(result.steps.length,1);assert.equal(result.p.hp,1);assert.equal(result.stats.damageDealt,3);assert.equal(s.worldTurn,0);});
 test("Bleeding victory likewise precedes poison and starvation and caps actual DOT damage.",()=>{let R=started(),s=R.state,b=s.battle;s.player.hp=1;s.hunger=0;s.player.poison={dmg:100,turns:2};b.enemy.hp=1;b.enemy.bleed={dmg:10,turns:2};b.plan=['basic_guard',null,null];let result=samePreviewExecution(R);assert.equal(result.outcome,'victory');assert.equal(result.p.hp,1);assert.equal(result.stats.damageDealt,1);assert.equal(s.worldTurn,0);});
-test("Full training restoration after arbitrary combat-only changes.",()=>{let R=runtime(),s=R.state;s.player.charge=9;s.player.chargePierce=true;s.player.combatTurn=8;s.player.damageCount=7;s.player.prevActionId='heal';s.player.poison={dmg:3,turns:1};s.player.riposte={damage:3,turns:1};s.buffs=[{attack:4,guard:3,turns:2}];s.worldTurn=17;let before=copy({player:s.player,hunger:s.hunger,maxHunger:s.maxHunger,buffs:s.buffs,worldTurn:s.worldTurn});R.startBattle('E',true);s.battle.plan=['basic_attack','basic_attack','basic_attack'];R.resolvePlan();if(s.inBattle)R.endBattle(false);assert.deepEqual(copy({player:s.player,hunger:s.hunger,maxHunger:s.maxHunger,buffs:s.buffs,worldTurn:s.worldTurn}),before);});
 test("Boss victory exposes only the continue action.",()=>{let R=started();R.state.battle.type='B';R.state.battle.enemy.hp=0;R.endBattle(true);assert.equal(R.event[2].length,1);assert.equal(R.event[2][0].label,'继续探索');});
 test("IDs change per batch, and stale batch commits cannot mutate.",()=>{let R=started(),b=R.state.battle,id=b.id,batch=b.batchId;R.resolvePlan(batch);assert.equal(b.id,id);assert.notEqual(b.batchId,batch);let before=copy(R.state);assert.equal(R.resolvePlan(batch).error,'STALE_BATCH');assert.deepEqual(copy(R.state),before);});
 
@@ -33,20 +34,20 @@ function payload(game, plan) {
 
 test('Scene transitions are present in command receipts', () => {
   const game = createGame();
-  const entered = game.humanAct('training.start');
+  const saved=game.exportSave();Object.assign(saved.state,{x:66,y:-99});for(const key of ['visited','discovered'])saved.state[key].push('66,-99');loadHuman(game,saved);
+  const entered = game.humanAct('world.harvest');
   const event = entered.events.find(event => event.type === 'sceneEntered');
   assert.equal(event.scene.kind, 'battle');
   assert.equal(event.scene.id, entered.observation.battle.battleId);
-  const exited = game.humanAct('training.exit');
+  const battleSave=game.exportSave();battleSave.state.battle.enemy.hp=1;loadHuman(game,battleSave);
+  const exited = game.humanAct('battle.commit',payload(game,['basic_attack',null,null]));
   assert.equal(exited.events.find(event => event.type === 'sceneExited').scene.id, event.scene.id);
 });
 
 test('Battle level-ups yield a complete sequence of serializable rewards', () => {
   const game = createGame({ seed: 123 });
-  game.humanAct('training.start');
+  startBattle(game);
   const save = game.exportSave();
-  save.state.training = false;
-  save.state.battleOrigin = null;
   save.state.battle.enemy.hp = 1;
   save.state.battle.enemy.xp = 100;
   loadHuman(game,save);
@@ -98,7 +99,7 @@ test('An XP event immediately hands off to reward choice and survives a pending 
 
 test('Complete battle save roundtrip preserves all gameplay state and deterministic continuation', () => {
   const game = createGame({ seed: 789 });
-  game.humanAct('training.start');
+  startBattle(game);
   const save = game.exportSave();
   save.state.buffs = [{ id: 'test_guard', name: '守势', turns: 3, guard: 2, attack: 1 }];
   save.state.player.attack += 1;
@@ -128,14 +129,11 @@ test('Complete battle save roundtrip preserves all gameplay state and determinis
   game.humanAct('battle.commit', payload(game, plan));
   other.humanAct('battle.commit', payload(other, plan));
   assert.deepEqual(gameplay(other.exportSave()), gameplay(game.exportSave()));
-  game.humanAct('training.exit');
-  other.humanAct('training.exit');
-  assert.deepEqual(gameplay(other.exportSave()), gameplay(game.exportSave()));
 });
 
 test('Public preview and observation never expose hidden intent payloads after fate swap', () => {
   const game = createGame();
-  game.humanAct('training.start');
+  startBattle(game);
   let save = game.exportSave();
   save.state.player.skills.fate_swap = 1;
   save.state.battle.enemy.hp = 100;
@@ -162,10 +160,8 @@ test('Public preview and observation never expose hidden intent payloads after f
 
 test('Killing-blow energy recovery is forecast and applied exactly once', () => {
   const game = createGame();
-  game.humanAct('training.start');
+  startBattle(game);
   const save = game.exportSave();
-  save.state.training = false;
-  save.state.battleOrigin = null;
   save.state.battle.enemy.hp = 1;
   save.state.battle.enemy.xp = 1;
   save.state.player.energy = 0;
@@ -181,10 +177,8 @@ test('Killing-blow energy recovery is forecast and applied exactly once', () => 
 
 test('Boss victory continuation preserves earned rewards without offering a new journey', () => {
   const game = createGame();
-  game.humanAct('training.start');
+  startBattle(game);
   const save = game.exportSave();
-  save.state.training = false;
-  save.state.battleOrigin = null;
   save.state.battle.type = 'B';
   save.state.battle.enemy.id = 'lord';
   save.state.battle.enemy.hp = 1;
@@ -205,11 +199,11 @@ test('Boss victory continuation preserves earned rewards without offering a new 
   assert.equal(game.exportSave().state.meta.bossWins, 1);
 });
 
-test('Incomplete historical training snapshots are rejected', () => {
+test('Historical training saves are rejected', () => {
   const game = createGame();
-  game.humanAct('training.start');
+  startBattle(game);
   const before = game.exportSave(), malformed = copy(before);
-  delete malformed.state.battleOrigin.player;
+  malformed.state.training=true;
   assert.throws(() => loadHuman(game,malformed), error => error.code === 'INVALID_SAVE');
   assert.deepEqual(game.exportSave(), before);
 });

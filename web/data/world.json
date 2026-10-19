@@ -15,12 +15,7 @@
   "maxFind": 0.78,
   "minAmbush": 0.04,
   "minDebuff": 0.03,
-  "starvationDamage": 1,
-  "collapse": {
-    "hpRatio": 0.4,
-    "minHunger": 20,
-    "hungerRatio": 0.25
-  },
+  "starvationHpRatio": 0.1,
   "village": {
     "hp": 5,
     "hunger": 20,

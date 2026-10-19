@@ -1,3 +1,4 @@
+import {starvationDamage} from './lifecycle.js';
 export function installWorld(R){
 const state=R.state,config=R.resources.data.world,growth=R.resources.data.rules.growth; const SEED=config.seed,FINAL_TOWER=config.finalTower;
  const requiredSigils=config.guardians.length;
@@ -96,8 +97,7 @@ function findSigilLeads(count=Math.max(0,requiredSigils-state.sigils),maxR=confi
 }
 function canHarvest(t){return Object.hasOwn(HARVEST,t)}
 function tickBuffs(){state.buffs.forEach(b=>b.turns--);state.buffs=state.buffs.filter(b=>b.turns>0);recalcStats()}
-function advanceTime(hungerCost=config.defaultHungerCost,{training=false}={}){if(training)return;state.worldTurn++;state.hunger=Math.max(0,state.hunger-hungerCost);if(state.hunger===0){state.player.hp=Math.max(0,state.player.hp-config.starvationDamage);toast(R.text('starvation',{damage:config.starvationDamage}))}tickBuffs();if(state.player.hp<=0)collapseFromHunger()}
-function collapseFromHunger(){state.x=0;state.y=0;state.player.hp=Math.max(1,Math.ceil(state.player.maxHp*config.collapse.hpRatio));state.hunger=Math.max(config.collapse.minHunger,Math.floor(state.maxHunger*config.collapse.hungerRatio));toast(R.text('collapse'))}
+function advanceTime(hungerCost=config.defaultHungerCost){state.worldTurn++;state.hunger=Math.max(0,state.hunger-hungerCost);if(state.hunger===0){const damage=Math.min(state.player.hp,starvationDamage(R.resources,state.player.maxHp));state.player.hp-=damage;toast(R.text('starvation',{damage}));if(state.player.hp===0){R.finishRun('starvation');return;}}tickBuffs();}
 function eatItem(id){if(state.inBattle)return toast(R.text('battleFood'));if((state.inventory[id]||0)<=0)return;state.inventory[id]--;foodDefs[id].eat();}
 function harvest(){
   if(state.inBattle)return;
@@ -107,7 +107,7 @@ function harvest(){
   state.harvested.add(k);state.meta.harvests++;refreshMetaUnlocks(true);
   const originX=state.x,originY=state.y;
   advanceTime(prof.cost);
-  if(state.x!==originX||state.y!==originY)return;
+  if(state.runResult||state.x!==originX||state.y!==originY)return;
 
   let r=h2(state.x+701,state.y-911),item=null;
   if(r<prof.find){
@@ -129,7 +129,7 @@ function harvest(){
   
   if(amb<prof.ambush){
     toast(R.text('harvestAmbush'));
-    startBattle('E',false);
+    startBattle('E');
   }
 }
 function resolveArrivalTile(x,y,t){
@@ -138,11 +138,11 @@ function resolveArrivalTile(x,y,t){
     if(state.sigils<requiredSigils){
       toast(R.text('towerLocked',{required:requiredSigils,sigils:state.sigils}));
       
-    }else startBattle('B',false);
+    }else startBattle('B');
     return;
   }
   if((t==='E'||t==='X')&&!state.cleared.has(k)){
-    startBattle(t,false);
+    startBattle(t);
     return;
   }
   if(t==='V'&&!state.spent.has(k)){
@@ -165,6 +165,6 @@ function resolveArrivalTile(x,y,t){
 }
 function addBuff(b){state.buffs=state.buffs.filter(x=>x.id!==b.id);state.buffs.push(b);recalcStats();toast(R.text('buff',b))}
 
-function moveTo(x,y){let t=tileAt(x,y),cost=moveCostFor(t);if(Math.abs(x-state.x)+Math.abs(y-state.y)!==1||cost==null)throw R.error('IMPASSABLE','不可通行');let from={x:state.x,y:state.y};state.x=x;state.y=y;state.visited.add(key(x,y));revealAround(x,y,config.revealRadius);advanceTime(cost);R.events.push({type:'moved',from,to:{x:state.x,y:state.y},cost});if(state.x===x&&state.y===y)resolveArrivalTile(x,y,t);}
+function moveTo(x,y){let t=tileAt(x,y),cost=moveCostFor(t);if(Math.abs(x-state.x)+Math.abs(y-state.y)!==1||cost==null)throw R.error('IMPASSABLE','不可通行');let from={x:state.x,y:state.y};state.x=x;state.y=y;state.visited.add(key(x,y));revealAround(x,y,config.revealRadius);advanceTime(cost);R.events.push({type:'moved',from,to:{x:state.x,y:state.y},cost});if(!state.runResult&&state.x===x&&state.y===y)resolveArrivalTile(x,y,t);}
 
-Object.assign(R,{key,clamp,revealAround,rebuildDiscoveryFromVisited,h2,xpNeed,activeBuff,attackBuff,guardBuff,hungerDiscount,journeyHungerMod,pct,harvestProfile,recalcStats,basicGuardAmount,biomeAt,terrainForBiome,tileAt,enemyFor,moveCostFor,compassDir,approxDist,findSigilLeads,canHarvest,tickBuffs,advanceTime,collapseFromHunger,eatItem,harvest,resolveArrivalTile,addBuff,moveTo});}
+Object.assign(R,{key,clamp,revealAround,rebuildDiscoveryFromVisited,h2,xpNeed,activeBuff,attackBuff,guardBuff,hungerDiscount,journeyHungerMod,pct,harvestProfile,recalcStats,basicGuardAmount,biomeAt,terrainForBiome,tileAt,enemyFor,moveCostFor,compassDir,approxDist,findSigilLeads,canHarvest,tickBuffs,advanceTime,eatItem,harvest,resolveArrivalTile,addBuff,moveTo});}

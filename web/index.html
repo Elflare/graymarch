@@ -42,7 +42,7 @@
         </div>
         <div id="objective" class="objective"></div>
         <div id="lastBattleReport" class="last-report"></div>
-        <div class="map-actions"><button id="harvestBtn">采集</button><button id="campBtn">营火</button><button id="trainBtn">训练场</button></div>
+        <div class="map-actions"><button id="harvestBtn">采集</button><button id="campBtn">营火</button></div>
         <div class="inventory"><h4>行囊</h4><div id="inventoryGrid" class="inv-grid"></div></div>
         <div class="buffs"><h4>旅途效果</h4><div id="buffList"></div></div>
       </aside>
@@ -66,7 +66,7 @@
         <div class="timeline-title player-title">我的计划（点击已选格可撤回；空槽会等待）</div><div id="playerPlan" class="timeline"></div>
         <div class="actions-head"><div class="timeline-title action-title" style="margin:0">行动库（点击加入计划）</div><div class="ap" id="energyHint">Energy 2/3</div></div>
         <div id="actions" class="actions"></div>
-        <div class="turn-controls"><button id="resolvePlanBtn" class="primary">执行三回合</button><button id="clearPlanBtn">清空计划</button><button id="fleeBtn" class="danger" style="display:none" disabled>退出训练</button><span id="planStatus" class="plan-status">0 / 3</span></div>
+        <div class="turn-controls"><button id="resolvePlanBtn" class="primary">执行三回合</button><button id="clearPlanBtn">清空计划</button><span id="planStatus" class="plan-status">0 / 3</span></div>
         <div id="combatAnalysis" class="analysis"><b>规划阶段：</b>最多安排三步；未填步骤会等待。能量会在每个回合结束后恢复 1 点。</div>
       </div>
 
@@ -86,6 +86,7 @@
 <div id="eventOverlay" class="overlay"><div class="modal" style="width:min(620px,94vw)"><div class="modal-head"><div><h2 id="eventTitle">旅途事件</h2><div id="eventSub" class="small">灰境中的偶遇</div></div></div><div id="eventBody" class="event-card"></div><div id="eventChoices" class="event-choices"></div></div></div>
 <div id="saveOverlay" class="overlay"><div class="modal" style="width:min(560px,94vw)"><div class="modal-head"><div><h2>存档与设置</h2><div class="small">旅程手动保存 · 局外成长自动保存 · 均存放在项目 saves 目录</div></div><button id="closeSaveBtn">关闭</button></div><div class="save-grid"><button id="localSaveBtn" class="primary">保存本地存档</button><button id="localLoadBtn">读取本地存档</button></div><div class="credits">本地运行，无远程素材依赖。音效由浏览器本地合成。存档由本机桥接服务管理；读取存档会替换当前旅程，保留已有局外成长。</div></div></div>
 <div id="atlasOverlay" class="overlay"><div class="modal" style="width:min(960px,96vw)"><div class="modal-head"><div><h2>探索总览</h2><div class="small">所有曾进入视野的格子都会永久记录；亮点为当前位置。</div></div><button id="closeAtlasBtn">关闭</button></div><div class="atlas-wrap"><svg id="atlasSvg" class="atlas-svg" xmlns="http://www.w3.org/2000/svg"></svg></div><div class="atlas-note">总览只绘制已探索区域，因此无限世界不会一次性生成。旧版存档读取时会根据曾走过的路径自动补回周围探索记忆。</div></div></div>
+<div id="gameOverOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle"><div class="modal"><div class="modal-head"><div><h2 id="gameOverTitle">旅程结束</h2><div id="gameOverCause" class="small"></div></div></div><div id="runStats" class="meta-progress"></div><h3>最终构筑</h3><div id="runBuild" class="build-list"></div><div class="save-grid"><button id="restartRunBtn" class="primary">重新开始</button><button id="gameOverSaveBtn">存档与读档</button></div></div></div>
 <div id="classOverlay" class="overlay"><div class="modal" style="width:min(760px,95vw)">
 <div class="modal-head"><div><h2>开启新旅程</h2><div class="small">会重置本局地图与构筑，保留自动保存的局外成长与永久解锁。</div></div><button id="closeClassBtn">取消</button></div>
 <div id="classGrid" class="class-grid"></div><div id="metaProgress" class="meta-progress"></div>

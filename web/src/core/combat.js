@@ -1,3 +1,4 @@
+import {starvationDamage} from './lifecycle.js';
 /** Deterministic combat rules. This module never touches the DOM or a timer. */
 export function installCombat(R) {
   // The runtime may replace state when starting or loading a journey.
@@ -6,7 +7,6 @@ export function installCombat(R) {
     set: (_, key, value) => { R.state[key] = value; return true; },
   });
   const activeSkills = R.activeSkills;
-  const enemyDefs = R.enemyDefs;
   const config=R.resources.data.rules.combat, world=R.resources.data.world, requiredSigils=world.guardians.length;
   const passive=(p,id,key)=>R.passiveValue(p,id,key);
   const gear=(p,id,key)=>R.gearValue(p,id,key);
@@ -15,16 +15,12 @@ export function installCombat(R) {
   const buffTotal = (buffs = [], property) => buffs.reduce((total, buff) => total + (buff.turns > 0 ? (buff[property] || 0) : 0), 0);
   const gradeRank = R.gradeRank;
 
-  function startBattle(type = 'E', training = false) {
+  function startBattle(type = 'E') {
     if (state.inBattle || state.battle) return state.battle;
     call('recalcStats');
     const p = state.player;
-    state.battleOrigin = training ? copy({ player: p, hunger: state.hunger, maxHunger: state.maxHunger, buffs: state.buffs, worldTurn: state.worldTurn }) : null;
-    const e = training
-      ? { ...enemyDefs[config.trainingEnemy], ...R.resources.enemy(config.trainingEnemy,config.trainingStats), id: config.trainingEnemy, maxHp: config.trainingStats.hp, hp: config.trainingStats.hp, atk: config.trainingStats.atk, baseArmor: config.trainingStats.armor, armor: config.trainingStats.armor, block: 0, exposed: 0, xp: 0 }
-      : R.enemyFor(state.x, state.y, type);
+    const e = R.enemyFor(state.x, state.y, type);
     state.inBattle = true;
-    state.training = !!training;
     Object.assign(p, { block: 0, charge: 0, chargePierce: false, damageCount: 0, poison: null, riposte: null, thorns: null, prevActionId: null });
     delete p.cooldowns;
     delete p.currentEnemyIntent;
@@ -39,7 +35,7 @@ export function installCombat(R) {
     };
     state.battle.lockedIntents = makeIntentBatch();
     state.screen = 'battle';
-    R.events?.push({ type: 'sceneEntered', scene: { kind: 'battle', id }, battleId: id, batchId: state.battle.batchId, training: !!training });
+    R.events?.push({ type: 'sceneEntered', scene: { kind: 'battle', id }, battleId: id, batchId: state.battle.batchId });
     return state.battle;
   }
 
@@ -65,41 +61,19 @@ export function installCombat(R) {
     call('refreshMetaUnlocks', true);
   }
 
-  function endBattle(win) {
+  function endBattle(win, cause = 'combat') {
     const b = state.battle;
     if (!b) return null;
     const p = state.player;
-    if (state.training) {
-      const origin = state.battleOrigin;
-      if (!origin?.player) throw call('error', 'INVALID_SAVE', '缺少完整训练快照') || new Error('缺少完整训练快照');
-      state.player = copy(origin.player);
-      state.hunger = origin.hunger;
-      state.maxHunger = origin.maxHunger;
-      state.buffs = copy(origin.buffs);
-      state.worldTurn = origin.worldTurn;
-      state.inBattle = false;
-      state.training = false;
-      state.battle = null;
-      state.battleOrigin = null;
-      state.screen = 'world';
-      R.events?.push({ type: 'sceneExited', scene: { kind: 'battle', id: b.id }, battleId: b.id, outcome: win ? 'victory' : 'defeat', training: true });
-      call('toast', R.text('trainingEnd'));
-      return { win: !!win, training: true };
-    }
     delete p.currentEnemyIntent;
     state.inBattle = false;
-    state.training = false;
     state.battle = null;
-    state.battleOrigin = null;
     state.screen = 'world';
     delete p.cooldowns;
-    R.events?.push({ type: 'sceneExited', scene: { kind: 'battle', id: b.id }, battleId: b.id, outcome: win ? 'victory' : 'defeat', training: false });
+    R.events?.push({ type: 'sceneExited', scene: { kind: 'battle', id: b.id }, battleId: b.id, outcome: win ? 'victory' : 'defeat' });
     if (!win) {
-      p.hp = Math.max(1, Math.ceil(p.maxHp * config.retreat.hpRatio));
-      p.energy = Math.min(p.maxEnergy, config.retreat.energy);
-      state.hunger = Math.max(state.hunger, config.retreat.minHunger);
-      call('toast', R.text('retreat'));
-      return { win: false, training: false };
+      R.finishRun(cause);
+      return { win: false };
     }
     state.wins = (state.wins || 0) + 1;
     state.cleared.add(call('key', state.x, state.y) ?? `${state.x},${state.y}`);
@@ -127,7 +101,7 @@ export function installCombat(R) {
         },
       }]);
     } else call('gainXP', xp, true);
-    return { win: true, training: false, report, xp };
+    return { win: true, report, xp };
   }
 
   function bossPhase(e) {
@@ -411,13 +385,14 @@ export function installCombat(R) {
     }
     ctx.turn++;
     if (p.passives.even_guard && ctx.turn % passive(p,'even_guard','interval') === 0) p.block += passive(p,'even_guard','block');
-    if (ctx.simulateWorld !== false) {
+    {
       ctx.worldTurn = (ctx.worldTurn || 0) + 1;
       ctx.hunger = Math.max(0, ctx.hunger - config.hungerPerStep);
       if (ctx.hunger === 0) {
-        const damage = Math.min(p.hp, world.starvationDamage);
+        const damage = Math.min(p.hp, starvationDamage(R.resources, p.maxHp));
         p.hp -= damage;
         ctx.endDamageTaken += damage;
+        if (p.hp === 0) { ctx.deathCause = 'starvation'; return dots; }
       }
       // Both preview and execution decay the same copied context, never global state.
       const before = buffTotal(ctx.buffs, 'attack');
@@ -441,7 +416,7 @@ export function installCombat(R) {
   function runPlan(b, { preview = false, maxSteps = 3 } = {}) {
     const cloned = preview ? cloneBattleState() : { p: state.player, e: b.enemy, hunger: state.hunger, buffs: state.buffs, worldTurn: state.worldTurn };
     const { p, e } = cloned;
-    const ctx = { ...cloned, turn: b.turn, simulateWorld: !state.training };
+    const ctx = { ...cloned, turn: b.turn };
     const start = { php: p.hp, ehp: e.hp, pblock: p.block, eblock: e.block, en: p.energy, hunger: ctx.hunger };
     const intents = copy(b.lockedIntents);
     const carryIntents = copy(b.carryIntents || []), steps = [];
@@ -516,6 +491,7 @@ export function installCombat(R) {
     return {
       p: copy(p), e: copy(e), start, hunger: ctx.hunger, buffs: copy(ctx.buffs), worldTurn: ctx.worldTurn,
       turn: ctx.turn, partial, blockedAt, steps, outcome, stats: copy(stats),
+      ...(outcome === 'defeat' ? {deathCause: ctx.deathCause || 'combat'} : {}),
       intents: intents.map(publicIntent), carryIntents: carryIntents.map(publicIntent),
       ...(!preview ? { frames } : {}),
     };
@@ -538,7 +514,7 @@ export function installCombat(R) {
       result = runPlan(b);
       b.lastResolvedBatchId = batchId;
       if (result.outcome === 'victory') result.battleResult = onEnemyDefeated({ rewardApplied: true });
-      else if (result.outcome === 'defeat') result.battleResult = endBattle(false);
+      else if (result.outcome === 'defeat') result.battleResult = endBattle(false, result.deathCause);
       else {
         b.plan = [null, null, null];
         b.lockedIntents = makeIntentBatch();

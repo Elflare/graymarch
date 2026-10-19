@@ -64,16 +64,24 @@ class CrossLanguage(unittest.TestCase):
                 again=client.post('/api/v1/actions',json=cmd,headers=auth);self.assertEqual(again.json(),body)
                 first=get('information');self.assertIn('current',first)
                 limited=client.get('/api/v1/information',headers=auth);self.assertEqual(limited.status_code,429,limited.text)
-                # Fixed training encounter permits battle API/preview verification.
-                self.assertEqual(frame['phase'],'world.ready')
-                if frame['phase']=='world.ready':
-                    action('training.start',{})
-                    self.assertEqual(frame['phase'],'battle.planning')
-                    b=frame['battle'];plan=['basic_attack',None,'basic_guard']
-                    preview=client.post('/api/v1/preview',headers=auth,json={'expectedRevision':frame['revision'],'battleId':b['battleId'],'batchId':b['batchId'],'plan':plan})
-                    self.assertEqual(preview.status_code,200,preview.text)
-                    action('battle.commit',{'battleId':b['battleId'],'batchId':b['batchId'],'plan':plan})
-                    if frame['phase']=='battle.planning':action('training.exit',{})
+                # A deterministic natural harvest encounter exercises the battle API.
+                saved=client.post('/api/v1/saves/manual',headers=owner)
+                self.assertEqual(saved.status_code,200,saved.text)
+                slot=Path(folder)/'saves/manual.json'
+                encounter=json.loads(slot.read_text())
+                encounter['state'].update(x=66,y=-99)
+                for key in ['visited','discovered']:
+                    encounter['state'][key].append('66,-99')
+                slot.write_text(json.dumps(encounter))
+                loaded=client.post('/api/v1/saves/manual/load',headers=owner)
+                self.assertEqual(loaded.status_code,200,loaded.text)
+                frame=get('observation')
+                action('world.harvest',{})
+                self.assertEqual(frame['phase'],'battle.planning')
+                b=frame['battle'];plan=['basic_attack',None,'basic_guard']
+                preview=client.post('/api/v1/preview',headers=auth,json={'expectedRevision':frame['revision'],'battleId':b['battleId'],'batchId':b['batchId'],'plan':plan})
+                self.assertEqual(preview.status_code,200,preview.text)
+                action('battle.commit',{'battleId':b['battleId'],'batchId':b['batchId'],'plan':plan})
                 control('human')
                 saved=client.post('/api/v1/saves/manual',headers=owner);self.assertEqual(saved.status_code,200,saved.text)
                 self.assertTrue((Path(folder)/'saves/manual.json').exists())

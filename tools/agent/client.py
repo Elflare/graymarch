@@ -260,6 +260,3 @@ class GraymarchClient:
     # 主动撤退暂时禁用，保留原客户端入口供后续恢复。
     # def retreat(self):
     #     return self.execute("battle.retreat")
-
-    def train(self, operation):
-        return self.execute({"start": "training.start", "exit": "training.exit"}[operation])

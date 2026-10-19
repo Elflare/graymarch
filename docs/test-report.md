@@ -1,5 +1,15 @@
 # 交付测试记录
 
+## 2026-10-19：死亡结算与训练移除
+
+- `node --test --test-isolation=none --test-reporter=spec tests/js/*.test.mjs`：195 项通过。覆盖死亡终态、统计、每小回合饥饿扣血、预演一致性、存档往返、移除训练、重开与读档提示。
+- `PYTHONPATH=.:src:tests/python uv run --no-sync python -m unittest test_agent_commands test_agent_summary test_bridge.SessionTests test_bridge.SaveTests -v`：12 项通过。
+- `uv run --no-sync python tests/e2e/test_asgi_integration.py -v`：1 项通过。真实 Node 内核经 ASGI HTTP/WebSocket 完成采集遇袭、死亡、重复回执、结束后动作拒绝、死亡与存活存档恢复。
+- `uv run --no-sync python -m compileall -q src tools tests` 通过。
+- 当前沙箱限制跨线程 socket 唤醒，未运行完整 TestClient 套件；跨语言验证采用同一事件循环的 ASGI 队列。UI 使用最小 DOM，未进行真实浏览器布局验收。
+
+## 首次交付历史记录
+
 2026-10-18，Linux 云工作环境。此记录对应首次源码包交付。
 
 ## 已完成
@@ -20,4 +30,4 @@
 - 未测所有构筑/无限地图组合，未发布模型 tokenizer 的 token 节省比例。
 - 无 GitHub 同步；此交付为可本地运行的源码 ZIP。
 
-本地建议先 `uv run graymarch`，确认地图显示、方向键移动、训练三步计划、暂停接管和手动存读档，再按 Agent 操作指南调用 API。测试输出可能出现 Starlette 关于 httpx 的弃用提醒；上述测试仍通过。
+当前本地建议先 `uv run graymarch`，确认地图显示、方向键移动、战斗三步计划、死亡统计与重开、暂停接管和手动存读档，再按 Agent 操作指南调用 API。训练已从当前版本移除。测试输出可能出现 Starlette 关于 httpx 的弃用提醒。

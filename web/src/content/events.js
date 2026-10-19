@@ -19,7 +19,7 @@ export function installEvents(R) {
     if(effect.xp)R.gainXP(effect.xp,true);
     if(effect.buff)R.addBuff(structuredClone(effect.buff));
     if(effect.message)R.toast(effect.message);
-    if(effect.battle)R.startBattle(effect.battle,false);
+    if(effect.battle)R.startBattle(effect.battle);
     if(effect.extra)apply(effect.extra);
   }
   const bind=(event,x,y)=>({title:event.title,text:event.text,choices:event.choices.map(c=>{const effect=resolve(c.effect,x,y);return {label:c.label,effect,fn:()=>apply(effect)};})});

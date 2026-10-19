@@ -4,6 +4,8 @@ import unittest
 from types import SimpleNamespace
 
 from tools.agent.__main__ import action_summary
+from tools.agent.client import GraymarchClient
+from tools.agent.views import decision_view, query_view
 
 
 def frame(*, inventory=None, battle=False, revision=1):
@@ -18,6 +20,34 @@ def frame(*, inventory=None, battle=False, revision=1):
 
 
 class AgentSummaryTests(unittest.TestCase):
+    def test_game_over_is_visible_in_summaries_and_queries(self):
+        before = frame(inventory={'berries': 1})
+        after = frame(inventory={'berries': 1}, revision=2)
+        after.update(phase='game.over', allowed=[], runResult={'cause': 'starvation', 'worldTurn': 2, 'wins': 0})
+        after['player']['hp'] = 0
+        result = self.summary(before, after)
+        self.assertEqual(result['changes']['runResult'], after['runResult'])
+        self.assertEqual(decision_view(after)['runResult'], after['runResult'])
+        info = {'revision': 2, 'player': after['player'], 'runResult': after['runResult']}
+        self.assertEqual(query_view(info, 'information', {})['runResult'], after['runResult'])
+
+    def test_multiple_moves_stop_as_soon_as_the_run_ends(self):
+        client = object.__new__(GraymarchClient)
+        before = frame(inventory={'berries': 1})
+        before['world']['neighbors'] = [{'direction': 'east', 'legal': True}]
+        client.current = before
+        calls = []
+
+        def execute(kind, payload):
+            calls.append((kind, payload))
+            self.assertEqual(len(calls), 1, 'no second move may follow death')
+            client.current = {**before, 'phase': 'game.over', 'world': {'position': {'x': 1, 'y': 0}}}
+            return {'status': 'completed', 'observation': client.current}
+
+        client.execute = execute
+        result = client.move('east', 5)
+        self.assertEqual(result['movement'], {'requested': 5, 'moved': 1, 'stop': 'game.over'})
+
     def summary(self, before, after, inventory=None):
         definitions = {'berries': {'id': 'berries', 'name': '黑莓束', 'effect': '+11 饥饿', 'version': '1'},
                        'mushroom': {'id': 'mushroom', 'name': '灰帽菇', 'effect': '+22 饥饿', 'version': '1'}}

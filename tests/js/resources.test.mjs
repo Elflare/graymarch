@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {startBattle} from './helpers/battle.mjs';
 import assert from 'node:assert/strict';
 import {GameResources} from '../../web/src/content/resources.js';
 import {createGame} from '../../web/src/core/engine.js';
@@ -15,16 +16,16 @@ function battlePlan(game,plan) {
 test('Agent owns a newly created game, human takeover and save reload work',()=>{
   const game=createGame({resources});
   assert.equal(game.getControl(),'agent');
-  assert.throws(()=>game.humanAct('training.start'),{code:'CONTROLLER_REQUIRED'});
-  act(game,'training.start');
+  assert.throws(()=>game.humanAct('world.move',{direction:'east'}),{code:'CONTROLLER_REQUIRED'});
+  act(game,'world.move',{direction:'east'});
   const old=game.observe(),save=game.exportSave();
   game.control('human');
-  assert.throws(()=>act(game,'training.exit'),{code:'CONTROLLER_REQUIRED'});
+  assert.throws(()=>act(game,'world.move',{direction:'east'}),{code:'CONTROLLER_REQUIRED'});
   const result=game.importSave(save);
   assert.equal(result.controlMode,'agent');assert.equal(game.getControl(),'agent');
   assert(game.observe().epoch>old.epoch);
   assert.equal(game.uiRuntime().presentation,null);
-  act(game,'training.exit');
+  act(game,'world.move',{direction:'east'});
   assert(!JSON.stringify(game.exportSave()).includes('levels'));
 });
 
@@ -82,9 +83,9 @@ test('edited JSON changes starting stats, skill settlement, descriptions, food, 
   assert.match(game.observe().definitions.find(d=>d.id==='roots').effect,/31/);
   const save=game.exportSave();save.state.hunger=10;game.importSave(save);
   act(game,'inventory.eat',{itemId:'roots'});assert.equal(game.observe().player.hunger,41);
-  act(game,'training.start');
+  startBattle(game);
   const plan=battlePlan(game,['power_strike',null,null]),forecast=game.preview(plan),result=act(game,'battle.commit',plan);
-  assert.equal(forecast.steps[0].playerAction.dmg,9); // capped by the training opponent's remaining HP
+  assert.equal(forecast.steps[0].playerAction.dmg,9); // capped by the fixture opponent's remaining HP
   assert.equal(forecast.steps[0].playerAction.overkill,16);
   assert.deepEqual(result.events.find(e=>e.type==='combatResolved').steps,forecast.steps);
 });
@@ -101,7 +102,7 @@ test('public definition caches invalidate when resource effects change',()=>{
 });
 
 test('resources do not add internal enemy behavior data to observations or saves',()=>{
-  const game=createGame({resources});act(game,'training.start');
+  const game=createGame({resources});startBattle(game);
   for(const value of [game.observe(),game.information(),game.exportSave()]){
     const text=JSON.stringify(value);assert(!text.includes('actionNames'));assert(!text.includes('phaseRatios'));assert(!text.includes('behavior'));
   }
@@ -122,7 +123,7 @@ test('conditional descriptions, enemy dossiers and unlock labels follow edited p
 
 test('basic action energy cost comes from the same definition shown to Agent',()=>{
   const data=dataCopy();data.rules.combat.basicActions.basic_attack.cost=1;data.rules.combat.energyPerStep=0;
-  const game=createGame({resources:new GameResources(data)});act(game,'training.start');
+  const game=createGame({resources:new GameResources(data)});startBattle(game);
   const f=game.preview(battlePlan(game,['basic_attack',null,null]));
   assert.equal(game.observe().battle.actions.find(a=>a.id==='basic_attack').cost,1);
   assert.equal(f.steps[0].playerAction.failed,undefined);

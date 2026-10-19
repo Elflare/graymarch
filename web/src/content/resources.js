@@ -95,7 +95,7 @@ function validate(d) {
     for(const[key,v]of Object.entries(def.params)){if(key==='phaseRatios'){if(!Array.isArray(v)||v.length!==2)fail(`${p}.params.${key}`,'需要两个阶段阈值');v.forEach(n=>number(n,`${p}.params.${key}`,0,1));if(v[0]<=v[1])fail(`${p}.params.${key}`,'阶段阈值必须递减');}else {number(v,`${p}.params.${key}`,key.endsWith('Bonus')?-Infinity:0);if(/period$/i.test(key))integer(v,`${p}.params.${key}`,1);if(key==='guardRatio')number(v,`${p}.params.${key}`,0,1);}}
   }
   const w=d.world;
-  fields(w,'seed finalTower biomeSize redRadius roadSpacing revealRadius observationRadius leadRadius minMoveCost minHarvestCost maxFind minAmbush minDebuff starvationDamage collapse village ruins biomeThresholds tileInfo biomes enemyPools guardians boss tierDistance maxTier fallbackEnemies distanceScale enemyXp sites terrain harvest navigation defaultHungerCost campHungerCost','world.json');
+  fields(w,'seed finalTower biomeSize redRadius roadSpacing revealRadius observationRadius leadRadius minMoveCost minHarvestCost maxFind minAmbush minDebuff starvationHpRatio village ruins biomeThresholds tileInfo biomes enemyPools guardians boss tierDistance maxTier fallbackEnemies distanceScale enemyXp sites terrain harvest navigation defaultHungerCost campHungerCost','world.json');
   for(const key of ['tileInfo','biomes','enemyPools','terrain','harvest'])object(w[key],`world.json.${key}`);
   fields(w.navigation,'nearDistance axisRatio distanceBucket','world.json.navigation');for(const key of ['nearDistance','axisRatio','distanceBucket'])positive(w.navigation[key],`world.json.navigation.${key}`);
   integer(w.defaultHungerCost,'world.json.defaultHungerCost');integer(w.campHungerCost,'world.json.campHungerCost');
@@ -103,7 +103,7 @@ function validate(d) {
   for(const key of ['biomeSize','roadSpacing','revealRadius','observationRadius','leadRadius'])integer(w[key],`world.json.${key}`);
   for(const key of ['maxFind','minAmbush','minDebuff'])number(w[key],`world.json.${key}`,0,1);
   number(w.seed,'world.json.seed',0,0xffffffff);number(w.finalTower.x,'world.json.finalTower.x',-Infinity);number(w.finalTower.y,'world.json.finalTower.y',-Infinity);
-  fields(w.collapse,'hpRatio minHunger hungerRatio','world.json.collapse');number(w.collapse.hpRatio,'world.json.collapse.hpRatio',0,1);number(w.collapse.hungerRatio,'world.json.collapse.hungerRatio',0,1);
+  number(w.starvationHpRatio,'world.json.starvationHpRatio',0,1);positive(w.starvationHpRatio,'world.json.starvationHpRatio');
   for(const [id,tile]of Object.entries(w.tileInfo)){fields(tile,'cls icon name desc move enemyRate gather',`world.json.tileInfo.${id}`);if(tile.move!==null)integer(tile.move,`world.json.tileInfo.${id}.move`,1);}
   for(const key of ['.','=','B','E','X','C','V','R','Q'])reference(w.tileInfo,key,'world.json.tileInfo');
   table(w.biomeThresholds,w.biomes,'world.json.biomeThresholds');
@@ -127,15 +127,13 @@ function validate(d) {
   for(const key of ['hunger','energy'])number(r.initial[key],`rules.json.initial.${key}`);fields(r.newRun,'energy','rules.json.newRun');number(r.newRun.energy,'rules.json.newRun.energy');
   fields(r.growth,'xpBase xpLinear xpExponent catchupEvery affinityLevelCap affinityWeightCap rewardCount rareWeight normalWeight ownedWeight gradeRank affinity unlocks','rules.json.growth');
   object(r.growth.gradeRank,'rules.json.growth.gradeRank');object(r.growth.affinity,'rules.json.growth.affinity');if(!Array.isArray(r.growth.unlocks))fail('rules.json.growth.unlocks','需要解锁条件列表');
-  fields(r.combat,'basicGuard minDamage energyPerStep hungerPerStep exposedArmor exposedTurns poisonTurns enrageInterval trainingEnemy trainingStats retreat fallbackXp bossHiddenPhase bossHiddenSlot bossSealedPhase defenseActions grades','rules.json.combat');
-  reference(d.enemies,r.combat.trainingEnemy,'rules.json.combat.trainingEnemy');positive(r.combat.enrageInterval,'rules.json.combat.enrageInterval');
+  fields(r.combat,'basicGuard minDamage energyPerStep hungerPerStep exposedArmor exposedTurns poisonTurns enrageInterval fallbackXp bossHiddenPhase bossHiddenSlot bossSealedPhase defenseActions grades','rules.json.combat');
+  positive(r.combat.enrageInterval,'rules.json.combat.enrageInterval');
   fields(r.combat.basicActions,'basic_attack basic_guard','rules.json.combat.basicActions');
   for(const[id,a]of Object.entries(r.combat.basicActions)){fields(a,'cn description cost cls',`rules.json.combat.basicActions.${id}`);text(a.cn,`rules.json.combat.basicActions.${id}.cn`);text(a.description,`rules.json.combat.basicActions.${id}.description`);number(a.cost,`rules.json.combat.basicActions.${id}.cost`);}
-  fields(r.messages,'starvation collapse battleFood harvest harvestEmpty harvestAmbush towerLocked village ruins buff trainingEnd retreat sigil victoryTitle victoryText continue bossPhase armorDown xp rewardTitle rewardText campTitle campText wait sealed unknown attack','rules.json.messages');
+  fields(r.messages,'starvation battleFood harvest harvestEmpty harvestAmbush towerLocked village ruins buff sigil victoryTitle victoryText continue bossPhase armorDown xp rewardTitle rewardText campTitle campText wait sealed unknown attack','rules.json.messages');
   for(const[key,value]of Object.entries(r.messages))text(value,`rules.json.messages.${key}`);
   if(!Array.isArray(r.handbook)||!r.handbook.length)fail('rules.json.handbook','需要规则说明');r.handbook.forEach((row,i)=>{text(row.cn,`rules.json.handbook[${i}].cn`);text(row.text,`rules.json.handbook[${i}].text`);});
-  for(const key of ['hp','atk','armor'])number(r.combat.trainingStats[key],`rules.json.combat.trainingStats.${key}`);
-  fields(r.combat.retreat,'hpRatio energy minHunger','rules.json.combat.retreat');number(r.combat.retreat.hpRatio,'rules.json.combat.retreat.hpRatio',0,1);number(r.combat.retreat.energy,'rules.json.combat.retreat.energy');number(r.combat.retreat.minHunger,'rules.json.combat.retreat.minHunger');
   for(const key of ['basicGuard','minDamage','energyPerStep','hungerPerStep','exposedArmor','exposedTurns','poisonTurns','fallbackXp'])integer(r.combat[key],`rules.json.combat.${key}`);
   integer(r.combat.bossHiddenSlot,'rules.json.combat.bossHiddenSlot');if(r.combat.bossHiddenSlot>=3)fail('rules.json.combat.bossHiddenSlot','三槽计划的索引必须为 0..2');
   if(!Array.isArray(r.combat.grades)||!r.combat.grades.length)fail('rules.json.combat.grades','需要评价表');

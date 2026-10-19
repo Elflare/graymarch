@@ -80,19 +80,19 @@ class ASGIIntegration(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual(response.status_code, 200, response.text)
                         return response.json()
 
-                    async def action(kind):
+                    async def action(kind, payload=None):
                         frame = await get('observation')
                         cmd = {k: frame[k] for k in ['sessionId', 'runId', 'epoch']}
                         cmd.update(commandId='cmd-' + str(frame['revision']),
-                                   expectedRevision=frame['revision'], type=kind, payload={})
+                                   expectedRevision=frame['revision'], type=kind, payload=payload or {})
                         response = await client.post('/api/v1/actions', json=cmd, headers=auth)
                         self.assertEqual(response.status_code, 200, response.text)
                         self.assertEqual(response.json()['status'], 'completed')
                         return cmd
 
                     self.assertEqual((await get('status'))['controlMode'], 'agent')
-                    cmd = await action('training.start')
-                    await action('training.exit')
+                    cmd = await action('world.move', {'direction': 'east'})
+                    await action('world.move', {'direction': 'west'})
                     saved = await client.post('/api/v1/saves/manual', headers=owner)
                     self.assertEqual(saved.status_code, 200, saved.text)
                     slot = Path(folder) / 'saves/manual.json'
@@ -107,8 +107,8 @@ class ASGIIntegration(unittest.IsolatedAsyncioTestCase):
                     stale = {**cmd, 'commandId': 'old-epoch'}
                     rejected = await client.post('/api/v1/actions', json=stale, headers=auth)
                     self.assertEqual(rejected.json()['error']['code'], 'SESSION_EXPIRED')
-                    await action('training.start')
-                    await action('training.exit')
+                    await action('world.move', {'direction': 'east'})
+                    await action('world.move', {'direction': 'west'})
 
                     harvest_save = json.loads(original)
                     harvest_save['state'].update(x=66, y=-99)
@@ -158,6 +158,43 @@ class ASGIIntegration(unittest.IsolatedAsyncioTestCase):
                     await connect(client.cookies['graymarch_owner'])
                     self.assertEqual((await get('status'))['controlMode'], 'human')
                     self.assertEqual((await client.get('/api/v1/status')).status_code, 401)
+
+                    starved = json.loads(original)
+                    starved['state']['player']['hp'] = 1
+                    starved['state']['hunger'] = 0
+                    slot.write_text(json.dumps(starved))
+                    loaded = await client.post('/api/v1/saves/manual/load', headers=owner)
+                    self.assertEqual(loaded.status_code, 200, loaded.text)
+                    before_death = await get('observation')
+                    death_cmd = await action('world.move', {'direction': 'east'})
+                    death = await get('commands/' + death_cmd['commandId'])
+                    terminal = death['observation']
+                    self.assertEqual(terminal['phase'], 'game.over')
+                    self.assertEqual(terminal['player']['hp'], 0)
+                    self.assertEqual(terminal['allowed'], [])
+                    self.assertEqual(terminal['runResult']['cause'], 'starvation')
+                    summary_client.before_command = before_death
+                    summary_client.last_command = death_cmd
+                    self.assertEqual(action_summary(death, summary_client)['changes']['runResult'], terminal['runResult'])
+                    retry = await client.post('/api/v1/actions', json=death_cmd, headers=auth)
+                    self.assertEqual(retry.json(), death)
+                    for kind in ['world.move', 'training.start', 'training.exit']:
+                        command = {k: terminal[k] for k in ['sessionId', 'runId', 'epoch']}
+                        command.update(commandId='ended-' + kind, expectedRevision=terminal['revision'], type=kind, payload={})
+                        rejected = await client.post('/api/v1/actions', json=command, headers=auth)
+                        self.assertEqual(rejected.json()['error']['code'], 'INVALID_PHASE')
+                    self.assertEqual((await get('observation'))['runResult'], terminal['runResult'])
+                    saved = await client.post('/api/v1/saves/manual', headers=owner)
+                    self.assertEqual(saved.status_code, 200, saved.text)
+                    self.assertNotIn('training', json.loads(slot.read_text())['state'])
+                    loaded = await client.post('/api/v1/saves/manual/load', headers=owner)
+                    self.assertEqual(loaded.status_code, 200, loaded.text)
+                    self.assertEqual((await get('observation'))['runResult'], terminal['runResult'])
+                    self.assertEqual((await get('status'))['phase'], 'game.over')
+                    slot.write_bytes(original)
+                    loaded = await client.post('/api/v1/saves/manual/load', headers=owner)
+                    self.assertEqual(loaded.status_code, 200, loaded.text)
+                    self.assertEqual((await get('observation'))['phase'], 'world.ready')
             finally:
                 if tasks:
                     await disconnect()

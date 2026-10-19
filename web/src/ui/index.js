@@ -157,11 +157,11 @@ function renderNavMarkers(){
     let leads=findSigilLeads();
     leads.forEach((p,i)=>{
       let dx=p.x-state.x,dy=p.y-state.y,pos=navPoint(dx,dy,i);
-      items.push(`<div class="nav-marker sigil" style="left:${pos.x}%;top:${pos.y}%"><span class="arrow">${arrowFor(dx,dy)}</span>塔印线索 · ${compassDir(dx,dy)} · ${approxDist(p.d)}</div>`);
+      items.push(`<div class="nav-marker sigil" style="left:${pos.x}%;top:${pos.y}%"><span class="arrow">${arrowFor(dx,dy)}</span>塔印线索 · ${compassDir(dx,dy)} · 直线估距 ${approxDist(p.d)}</div>`);
     });
   }else if(!state.victory){
     let dx=FINAL_TOWER.x-state.x,dy=FINAL_TOWER.y-state.y,d=Math.abs(dx)+Math.abs(dy),pos=navPoint(dx,dy,0);
-    items.push(`<div class="nav-marker boss" style="left:${pos.x}%;top:${pos.y}%"><span class="arrow">${arrowFor(dx,dy)}</span>赤塔 · ${compassDir(dx,dy)} · ${approxDist(d)}</div>`);
+    items.push(`<div class="nav-marker boss" style="left:${pos.x}%;top:${pos.y}%"><span class="arrow">${arrowFor(dx,dy)}</span>赤塔 · ${compassDir(dx,dy)} · 直线估距 ${approxDist(d)}</div>`);
   }
   host.innerHTML=items.join('');
 }
@@ -173,7 +173,7 @@ function objectiveText(){
     return `<div class="goal-line"><b>主线：收集赤塔印记</b><br>已获得 <b>${state.sigils}/${requiredSigils}</b>，还需要 <b>${remain}</b> 枚。<br>${hint}<br><span class="muted">赤塔位置会在 ${requiredSigils} 枚塔印集齐后显现。</span></div>`;
   }
   let dx=FINAL_TOWER.x-state.x,dy=FINAL_TOWER.y-state.y,d=Math.abs(dx)+Math.abs(dy);
-  return `<div class="goal-line"><b>主线：前往赤塔</b><br>${requiredSigils} 枚塔印已经共鸣，赤塔方位已显现。<br>位于 <b>${compassDir(dx,dy)}</b> 方，${approxDist(d)}。</div>`;
+  return `<div class="goal-line"><b>主线：前往赤塔</b><br>${requiredSigils} 枚塔印已经共鸣，赤塔方位已显现。<br>位于 <b>${compassDir(dx,dy)}</b> 方，直线估距 ${approxDist(d)}。</div>`;
 }
 function terrainTooltip(x,y,t){
   let inf=tileInfo[t],bio=biomeAt(x,y),cost=moveCostFor(t),html=`<b>${inf.name}</b><br><span class="muted">区域：</span>${bio.name}<br>${inf.desc}<br><span class="muted">移动饥饿：</span><span class="tip-move">${cost==null?'不可通行':cost}</span>`;
@@ -361,7 +361,7 @@ let br=$('bossRule');if(e.id==='lord'){let ph=bossPhase(e);br.style.display='blo
 
 function clearForecastHud(){['phpDelta','energyDelta','pblockDelta','hungerDelta','ehpDelta','eblockDelta'].forEach(id=>{let el=$(id);if(el){el.textContent='';el.className='delta'}});['phpForecast','energyForecast','pblockForecast','hungerForecast','ehpForecast','eblockForecast'].forEach(id=>{let el=$(id);if(el){el.className='forecast-segment';el.style.left='0%';el.style.width='0%'}});$('playerStat')?.classList.remove('preview-change');$('enemyStat')?.classList.remove('preview-change')}
 function setForecastDelta(deltaId,segId,current,pred,max){let d=pred-current,el=$(deltaId),seg=$(segId);if(!el||!seg||d===0)return;el.textContent=(d>0?'+':'')+d;el.className=`delta show ${d>0?'gain':'loss'}`;let a=clamp(100*current/max,0,100),bb=clamp(100*pred/max,0,100);seg.style.left=`${Math.min(a,bb)}%`;seg.style.width=`${Math.max(1,Math.abs(bb-a))}%`;seg.className=`forecast-segment show ${d>0?'gain':'loss'}`}
-function renderForecast(){clearForecastHud();let b=state.battle;if(!b||b.resolving)return;let f=simulatePlan();if(!f)return;setForecastDelta('phpDelta','phpForecast',f.start.php,f.p.hp,state.player.maxHp);setForecastDelta('energyDelta','energyForecast',f.start.en,f.p.energy,state.player.maxEnergy);setForecastDelta('pblockDelta','pblockForecast',f.start.pblock,f.p.block,state.player.maxHp);if(!state.training)setForecastDelta('hungerDelta','hungerForecast',f.start.hunger,f.hunger,state.maxHunger);setForecastDelta('ehpDelta','ehpForecast',f.start.ehp,f.e.hp,b.enemy.maxHp);setForecastDelta('eblockDelta','eblockForecast',f.start.eblock,f.e.block,b.enemy.maxHp)}
+function renderForecast(){clearForecastHud();let b=state.battle;if(!b||b.resolving)return;let f=simulatePlan();if(!f)return;setForecastDelta('phpDelta','phpForecast',f.start.php,f.p.hp,state.player.maxHp);setForecastDelta('energyDelta','energyForecast',f.start.en,f.p.energy,state.player.maxEnergy);setForecastDelta('pblockDelta','pblockForecast',f.start.pblock,f.p.block,state.player.maxHp);setForecastDelta('hungerDelta','hungerForecast',f.start.hunger,f.hunger,state.maxHunger);setForecastDelta('ehpDelta','ehpForecast',f.start.ehp,f.e.hp,b.enemy.maxHp);setForecastDelta('eblockDelta','eblockForecast',f.start.eblock,f.e.block,b.enemy.maxHp)}
 function renderPlan(){
  let b=state.battle,filled=filledPlanCount(b);
  $('playerPlan').innerHTML=Array.from({length:requiredSigils},(_,i)=>i).map(i=>{
@@ -383,7 +383,7 @@ function renderActions(){
 function renderBuild(){let items=[];for(let [id,lv] of Object.entries(state.player.skills))if(lv)items.push(`<div class="build-item" title="${activeSkills[id].desc(lv)}"><b>${activeSkills[id].cn} Lv.${lv}</b></div>`);for(let [id,lv] of Object.entries(state.player.passives))if(lv)items.push(`<div class="build-item" title="${passiveDefs[id].desc(lv)}"><b>${passiveDefs[id].cn} Lv.${lv}</b></div>`);for(let [id,lv] of Object.entries(state.player.equipment))if(lv)items.push(`<div class="build-item" title="${equipDefs[id].desc(lv)}"><b>${equipDefs[id].cn} Lv.${lv}</b></div>`);$('buildList').innerHTML=items.length?items.join(''):'<div class="build-item"><b>尚无构筑</b><div>升级时进行三选一。</div></div>'}
 function openBook(){
  const rules=R.resources.data.rules;
- let cards=rules.handbook.map(c=>({...c,text:R.resources.format(c.text,{starvationDamage:worldConfig.starvationDamage,hunterHarvests:rules.growth.unlocks.find(u=>u.id==='class_hunter').value})}));
+ let cards=rules.handbook.map(c=>({...c,text:R.resources.format(c.text,{starvationPercent:Math.round(worldConfig.starvationHpRatio*100),hunterHarvests:rules.growth.unlocks.find(u=>u.id==='class_hunter').value})}));
  for(let [id,d] of Object.entries(rewardPool)){let lv=levelOf(id);if(lv)cards.push({cn:`${d.cn} · Lv.${lv}`,text:d.desc(lv)})}
  $('bookGrid').innerHTML=cards.map(c=>`<div class="book-card"><h3>${c.cn}</h3><p>${c.text}</p></div>`).join('');
  $('bookOverlay').classList.add('show')
@@ -392,7 +392,7 @@ function openBook(){
 function openNewRun(){
  let ids=Object.keys(classDefs),host=$('classGrid');
  host.innerHTML=ids.map(id=>{let d=classDefs[id],ok=classUnlocked(id);return `<div class="class-card ${ok?'':'locked'}" data-class="${id}"><div class="eyebrow">${ok?'AVAILABLE':'LOCKED'}</div><h3>${d.cn}</h3><p>${d.desc}</p><div class="start">HP ${d.base.hp} · ATK ${d.base.attack} · EN ${d.base.energy} · 饥饿 ${d.base.hunger}</div><div class="unlock">${ok?'点击选择':d.unlock}</div></div>`}).join('');
- document.querySelectorAll('[data-class]').forEach(el=>el.onclick=()=>{let id=el.dataset.class;if(!classUnlocked(id))return;beginNewRun(id)});
+ document.querySelectorAll('[data-class]').forEach(el=>el.onclick=()=>{let id=el.dataset.class;if(!classUnlocked(id))return;return beginNewRun(id)});
  let m=state.meta;$('metaProgress').innerHTML=`<div class="row"><span>赤塔通关</span><b>${escapeHtml(m.bossWins)}</b></div><div class="row"><span>最佳战术评价</span><b>${escapeHtml(m.bestGrade)}</b></div><div class="row"><span>累计采集</span><b>${escapeHtml(m.harvests)}</b></div><div class="small">局外成长自动保存；打开游戏自动恢复，读取旧旅程不会回退解锁。</div>`;
  $('classOverlay').classList.add('show')
 }
@@ -472,6 +472,28 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
     }
   }
 
+  function renderGameOver() {
+    const result = state.runResult;
+    const otherModal = ['classOverlay','saveOverlay','bookOverlay','atlasOverlay'].some(id => $(id).classList.contains('show'));
+    $('gameOverOverlay').classList.toggle('show', !!result && !playback && !otherModal);
+    if (!result) return;
+    $('gameOverCause').textContent = result.cause === 'starvation' ? '你因饥饿倒下，本次旅程已经结束。' : '你在战斗中倒下，本次旅程已经结束。';
+    const rows = [
+      ['职业',classDefs[result.classId].cn],['等级',result.level],['当前等级经验',result.xp],
+      ['世界回合',result.worldTurn],['击败敌人',result.wins],['塔印',`${result.sigils}/${requiredSigils}`],['到访格数',result.visited],
+    ];
+    $('runStats').innerHTML = rows.map(([label,value]) => `<div class="row"><span>${label}</span><b>${escapeHtml(String(value))}</b></div>`).join('');
+    const build = Object.values(result.build).flatMap(group => Object.entries(group).filter(([,level]) => level).map(([id,level]) => `<div class="build-item"><b>${escapeHtml(rewardPool[id].cn)} Lv.${level}</b></div>`));
+    $('runBuild').innerHTML = build.join('') || '<div class="small">尚无构筑</div>';
+  }
+
+  async function restartRun() {
+    if (controlMode() === 'agent' && !await setControl('human')) return;
+    if (!canInteract()) return toast('正在处理，请稍候。');
+    openNewRun();
+    renderGameOver();
+  }
+
   function renderDecision() {
     const decision = state.pendingDecision;
     $('rewardOverlay').classList.remove('show');
@@ -549,18 +571,13 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
     document.body.classList.toggle('human-controls-locked', mode !== 'human' || !!playback);
     const locked = !canInteract();
     setAvailability($('newRunBtn'), true);
-    setAvailability($('trainBtn'), !state.inBattle && !state.pendingDecision);
-    // 主动撤退暂时禁用；此按钮仅供退出训练。
-    $('fleeBtn').style.display = state.training ? '' : 'none';
-    setAvailability($('fleeBtn'), !!state.inBattle && !!state.training);
-    document.querySelectorAll('[data-action],[data-eat],#harvestBtn,#campBtn,#trainBtn,#resolvePlanBtn,#clearPlanBtn,#fleeBtn,#newRunBtn,[data-option-id],.event-cancel').forEach(button => {
+    document.querySelectorAll('[data-action],[data-eat],#harvestBtn,#campBtn,#resolvePlanBtn,#clearPlanBtn,#newRunBtn,[data-option-id],.event-cancel').forEach(button => {
       button.dataset.controlLocked = String(locked);
-      button.disabled = locked || button.dataset.unavailable === 'true';
+      button.disabled = locked || (button.id !== 'newRunBtn' && !!state.runResult) || button.dataset.unavailable === 'true';
     });
     $('localSaveBtn').disabled = busy || ownershipBusy || !online;
-    $('localLoadBtn').disabled = locked || !online;
-    // $('fleeBtn').textContent = state.training ? '退出训练' : '撤退 · 返回地图';
-    $('fleeBtn').textContent = '退出训练';
+    $('localLoadBtn').disabled = busy || ownershipBusy || !online;
+    $('restartRunBtn').disabled = busy || ownershipBusy || !!playback;
     document.querySelectorAll('[data-class]').forEach(card => card.setAttribute('aria-disabled', String(locked || !classUnlocked(card.dataset.class))));
   }
 
@@ -581,14 +598,16 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
   }
 
   async function setControl(mode) {
-    if (ownershipBusy) return;
+    if (ownershipBusy) return false;
     ownershipBusy = true;
     updateControlUI();
     try {
       await postLocal('/api/owner/control', {mode});
       toast(mode === 'human' ? '已暂停 Agent，人工接管。' : '已将控制权交给 Agent。');
+      return true;
     } catch (error) {
       toast(error.message || '控制权切换失败');
+      return false;
     } finally {
       ownershipBusy = false;
       render();
@@ -596,7 +615,8 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
   }
 
   async function saveOrLoad(load) {
-    if (load && !canInteract()) return toast('请先暂停并人工接管。');
+    if (load && controlMode() === 'agent') return toast('请人工接管后读档。');
+    if (load && !canInteract()) return toast('正在处理，请稍候。');
     if (busy) return;
     busy = true;
     updateControlUI();
@@ -819,6 +839,7 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
     const battleTab = document.querySelector('[data-screen="battle"]');
     battleTab.disabled = !state.battle;
     renderDecision();
+    renderGameOver();
     updateControlUI();
   }
 
@@ -827,6 +848,7 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
     if (event.key === 'Escape') {
       for (const id of ['bookOverlay','saveOverlay','classOverlay','atlasOverlay']) $(id).classList.remove('show');
       hideTip();
+      renderGameOver();
       return;
     }
     if (state.inBattle || mapMoving || document.querySelector('.overlay.show') || !canInteract()) return;
@@ -846,15 +868,12 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
   document.querySelectorAll('.tab').forEach(button => button.onclick = () => setScreen(button.dataset.screen));
   const modalBindings = [['atlasBtn','atlasOverlay','closeAtlasBtn',openAtlas],['bookBtn','bookOverlay','closeBookBtn',openBook],['saveBtn','saveOverlay','closeSaveBtn',null],['newRunBtn','classOverlay','closeClassBtn',openNewRun]];
   for (const [openId, overlayId, closeId, opener] of modalBindings) {
-    $(openId).onclick = opener || (() => $(overlayId).classList.add('show'));
-    $(closeId).onclick = () => $(overlayId).classList.remove('show');
-    $(overlayId).onclick = event => {if (event.target === $(overlayId)) $(overlayId).classList.remove('show');};
+    $(openId).onclick = () => {if (opener) opener();else $(overlayId).classList.add('show');renderGameOver();};
+    $(closeId).onclick = () => {$(overlayId).classList.remove('show');renderGameOver();};
+    $(overlayId).onclick = event => {if (event.target === $(overlayId)) {$(overlayId).classList.remove('show');renderGameOver();}};
   }
   $('resolvePlanBtn').onclick = () => humanAction('battle.commit', {...actionIds(), plan:[...state.battle.plan]});
   $('clearPlanBtn').onclick = () => setPlan([null,null,null]);
-  // 主动撤退暂时禁用：humanAction(state.training ? 'training.exit' : 'battle.retreat', actionIds())。
-  $('fleeBtn').onclick = () => humanAction('training.exit', actionIds());
-  $('trainBtn').onclick = () => humanAction('training.start');
   $('harvestBtn').onclick = () => humanAction('world.harvest');
   $('campBtn').onclick = () => humanAction('camp.open');
   $('soundBtn').onclick = () => {audioEnabled = !audioEnabled;renderMeta();if (audioEnabled) playTone('toggle');};
@@ -863,6 +882,8 @@ function floatText(id,txt,color){let host=$('battlefield'),target=$(id),r=target
   $('agentControlBtn').onclick = () => setControl('agent');
   $('localSaveBtn').onclick = () => saveOrLoad(false);
   $('localLoadBtn').onclick = () => saveOrLoad(true);
+  $('restartRunBtn').onclick = restartRun;
+  $('gameOverSaveBtn').onclick = $('saveBtn').onclick;
   resetMapCamera();
   $('playerPortrait').innerHTML = playerSVG();
   const unsubscribe = game.subscribe(render);

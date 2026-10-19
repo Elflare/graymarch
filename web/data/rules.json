@@ -17,17 +17,6 @@
     "exposedTurns": 2,
     "poisonTurns": 2,
     "enrageInterval": 3,
-    "trainingEnemy": "skeleton",
-    "trainingStats": {
-      "hp": 9,
-      "atk": 2,
-      "armor": 1
-    },
-    "retreat": {
-      "hpRatio": 0.4,
-      "energy": 1,
-      "minHunger": 20
-    },
     "fallbackXp": 6,
     "bossHiddenPhase": 2,
     "bossHiddenSlot": 2,
@@ -166,7 +155,6 @@
   },
   "messages": {
     "starvation": "饥饿：生命 -{damage}",
-    "collapse": "你因饥饿倒下，被商旅带回旧王道。",
     "battleFood": "战斗中无法翻找行囊",
     "harvest": "采集：{name} ×{quantity}",
     "harvestEmpty": "采集：没有找到可用物资",
@@ -175,8 +163,6 @@
     "village": "聚落休整：+{hp} HP，+{hunger} 饥饿，{items}",
     "ruins": "探索遗迹：符能恢复，并获得经验",
     "buff": "{name}：{turns} 回合",
-    "trainingEnd": "训练结束：真实状态未改变",
-    "retreat": "战败恢复：恢复了部分生命，未失去经验。",
     "sigil": "夺得赤塔印记：{sigils}/{required}",
     "victoryTitle": "赤塔陷落",
     "victoryText": "赤塔领主倒下了。最终战评价 {grade}，额外获得 {bonusXp} EXP。新的职业与战术可能已永久解锁。",
@@ -224,7 +210,7 @@
     },
     {
       "cn": "生存",
-      "text": "地图移动、采集与真实战斗都会消耗饥饿。采集可能遭遇伏击或负面状态；不同食物也有各自的利弊。饥饿为 0 后每回合损失 {starvationDamage} HP。"
+      "text": "地图移动、采集与真实战斗都会消耗饥饿。采集可能遭遇伏击或负面状态；不同食物也有各自的利弊。饥饿为 0 后每回合损失最大生命的 {starvationPercent}%（向上取整），生命归零即结束本局。"
     }
   ]
 }

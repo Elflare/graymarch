@@ -37,15 +37,15 @@ test('page startup restores metaprogression before mounting or connecting', asyn
   const startup = import('../../web/src/main.js?restored');
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(window.graymarch, undefined);
-  assert.equal($('trainBtn').onclick, undefined);
+  assert.equal($('harvestBtn').onclick, undefined);
   const meta = {bossWins: 1, bestGrade: 'S', harvests: 10,
     unlocks: ['class_arcanist', 'class_hunter', 'class_sentinel', 'interrupt_tactics', 'time_tactics']};
   finishLoad({ok: true, json: async () => ({meta})});
   await startup;
   assert(window.graymarch);
-  assert.equal(typeof $('trainBtn').onclick, 'function');
+  assert.equal(typeof $('harvestBtn').onclick, 'function');
   assert.equal($('controlMode').textContent, 'Agent');
-  assert.equal($('trainBtn').disabled, true);
+  assert.equal($('harvestBtn').disabled, true);
   assert.match($('metaSaveStatus').textContent, /已恢复/);
   $('newRunBtn').onclick();
   assert.equal(document.querySelectorAll('.class-card.locked').length, 0);
@@ -55,7 +55,7 @@ test('failed startup leaves gameplay unmounted and offers retry', async t => {
   const $ = browser(t, async () => ({ok: false, json: async () => ({error: {message: 'damaged meta'}})}));
   await import('../../web/src/main.js?failed');
   assert.equal(window.graymarch, undefined);
-  assert.equal($('trainBtn').onclick, undefined);
+  assert.equal($('harvestBtn').onclick, undefined);
   assert.match($('metaSaveStatus').textContent, /启动失败.*damaged meta/);
   assert.equal($('metaLoadRetry').hidden, false);
   assert.equal(typeof $('metaLoadRetry').onclick, 'function');
@@ -76,7 +76,7 @@ for(const scenario of ['missing','syntax','invalid'])test('resource '+scenario+'
     return fetch(path,options);
   };
   await import('../../web/src/main.js?resource-'+scenario);
-  assert.equal(window.graymarch,undefined);assert.equal($('trainBtn').onclick,undefined);
+  assert.equal(window.graymarch,undefined);assert.equal($('harvestBtn').onclick,undefined);
   assert.equal(progressReads,0);assert.equal(sockets,0);
   assert.match($('metaSaveStatus').textContent,/启动失败.*classes.json/);
   if(scenario==='invalid')assert.match($('metaSaveStatus').textContent,/wanderer.base.hp/);

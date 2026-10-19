@@ -62,8 +62,6 @@ def parser():
     for name, help_text in [("preview", "只读预演"), ("plan", "只编辑计划"), ("fight", "提交并执行计划")]:
         command = commands.add_parser(name, help=help_text, parents=[common])
         command.add_argument("slots", nargs=3, metavar="ACTION", help="技能 ID；wait 表示空槽")
-    train = commands.add_parser("train", help="进入或退出训练", parents=[common])
-    train.add_argument("training_operation", choices=["start", "exit"])
     receipt = commands.add_parser("command", help="查询原 commandId 的回执", parents=[common])
     receipt.add_argument("command_id")
     action = commands.add_parser("act", help="通用语义动作", parents=[common])
@@ -90,9 +88,9 @@ def changed_fields(before, after):
 
 def observation_changes(before, after):
     changes = {}
-    for key in ("phase", "worldTurn"):
-        if before[key] != after[key]:
-            changes[key] = after[key]
+    for key in ("phase", "worldTurn", "runResult"):
+        if before.get(key) != after.get(key):
+            changes[key] = after.get(key)
     old_player = player_view(before["player"], sparse=False)
     new_player = player_view(after["player"], sparse=False)
     # Compact frames omit inventory in battle. A scope change is not an item change.
@@ -116,7 +114,7 @@ def observation_changes(before, after):
         exited = next((event for event in after.get("events", [])
                        if event["type"] == "sceneExited" and event.get("battleId") == old_battle["battleId"]), None)
         changes["battle"] = {"outcome": exited["outcome"]} if exited else "exited"
-        if exited and exited["outcome"] == "victory" and not exited.get("training"):
+        if exited and exited["outcome"] == "victory":
             changes["battle"]["grade"] = after["lastReport"]["grade"]
     elif new_battle and (not old_battle or old_battle["battleId"] != new_battle["battleId"]):
         changes["battle"] = battle_view(new_battle)
@@ -191,8 +189,6 @@ def run(client, args):
         return client.eat(args.item_id)
     if operation == "choose":
         return client.choose(args.option_id)
-    if operation == "train":
-        return client.train(args.training_operation)
     if operation == "command":
         return client.command(args.command_id)
     if operation == "act":

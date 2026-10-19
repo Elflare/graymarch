@@ -100,7 +100,7 @@ class SaveTests(unittest.TestCase):
     def test_save_atomic_and_no_old_format_or_symlink(self):
         with tempfile.TemporaryDirectory() as folder:
             store = SaveStore(folder)
-            state = dict(sessionId='s',runId='r',epoch=1,revision=0,decisionTurn=0,sequence=0,rng=1,worldTurn=0,x=0,y=0,level=1,xp=0,sigils=0,hunger=80,maxHunger=100,pendingRewards=0,inventory={},meta={},buffs=[],inBattle=False,training=False,battle=None,pendingDecision=None)
+            state = dict(sessionId='s',runId='r',epoch=1,revision=0,decisionTurn=0,sequence=0,rng=1,worldTurn=0,x=0,y=0,level=1,xp=0,sigils=0,hunger=80,maxHunger=100,pendingRewards=0,inventory={},meta={},buffs=[],inBattle=False,battle=None,pendingDecision=None)
             state['player']=dict(hp=18,maxHp=18,attack=4,energy=2,maxEnergy=3,block=0,skills={},passives={},equipment={})
             for key in ('visited','discovered','spent','harvested','eventsSeen','cleared'):
                 state[key]=[]

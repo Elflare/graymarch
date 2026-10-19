@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {startBattle} from './helpers/battle.mjs';
 import assert from 'node:assert/strict';
 import {resources,createHumanGame as createGame,loadHuman} from './helpers/resources.mjs';
 import {initialState} from '../../web/src/core/state.js';
@@ -28,18 +29,18 @@ test('control cooldowns use steps, cross batches, and preview matches execution'
   }
 });
 
-test('cooldown saves restore and training restores the original player',()=>{
+test('cooldown saves restore the current battle',()=>{
   const game=createGame(),save=game.exportSave();save.state.player.skills.stagger=3;
   loadHuman(game,save);
-  const original=game.exportSave().state.player;
-  game.humanAct('training.start');
+  startBattle(game);
   const b=game.observe().battle;
   game.humanAct('battle.commit',{battleId:b.battleId,batchId:b.batchId,plan:[null,null,'stagger']});
   assert.equal(game.observe().player.cooldowns.stagger,2);
   loadHuman(game,game.exportSave());
   assert.equal(game.observe().player.cooldowns.stagger,2);
-  game.humanAct('training.exit');
-  assert.deepEqual(game.exportSave().state.player,original);
+  const b2=game.observe().battle;
+  game.humanAct('battle.commit',{battleId:b2.battleId,batchId:b2.batchId,plan:['basic_guard','basic_guard','basic_guard']});
+  assert.equal(game.observe().player.cooldowns?.stagger,undefined);
 });
 
 test('three distinct guardians scale by sigils; enrage strengthens only new attacks',()=>{

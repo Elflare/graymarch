@@ -62,8 +62,9 @@ def validate_save(save):
         require(isinstance(values, list) and len(values) <= 100000, field)
         require(all(isinstance(v, str) and re.fullmatch(r"-?[0-9]{1,10},-?[0-9]{1,10}", v) for v in values), field)
     require(isinstance(state.get("buffs"), list), "buffs")
-    for field in ("inBattle", "training"):
-        require(type(state.get(field)) is bool, field)
+    require(type(state.get("inBattle")) is bool, "inBattle")
+    if state.get("training"):
+        raise ValueError("训练存档已不再支持")
     for field in ("battle", "pendingDecision"):
         require(field in state and (state[field] is None or isinstance(state[field], dict)), field)
     def walk(value, depth=0):

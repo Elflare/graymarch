@@ -103,6 +103,8 @@ def choice_view(choice):
 
 
 def scene_view(frame, *, full_actions=False):
+    if frame.get("runResult"):
+        return {"runResult": frame["runResult"]}
     if frame.get("pendingDecision"):
         return {"choice": choice_view(frame["pendingDecision"])}
     if frame.get("battle"):
@@ -186,6 +188,8 @@ def query_view(result, operation, definitions, scope="current", current=None):
                 "basicActions": [{"id": a["id"], "cost": a["cost"], "effect": a["desc"]} for a in result["actions"] if a["id"].startswith("basic_")]}
     if operation == "information":
         brief = pick(result, ("revision",))
+        if result.get("runResult"):
+            brief["runResult"] = result["runResult"]
         if result.get("current"):
             brief.update(decision_view(result["current"], definitions=definitions))
         if result.get("player"):
